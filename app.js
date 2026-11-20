@@ -163,6 +163,23 @@ behavior: "smooth"
 });
 }
 
+// TELEGRAM OFFICIAL-STYLE SVG ICON
+const telegramIcon = `
+<svg
+  viewBox="0 0 48 48"
+  width="38"
+  height="38"
+  xmlns="http://www.w3.org/2000/svg"
+  aria-hidden="true"
+>
+  <circle cx="24" cy="24" r="24" fill="#229ED9"/>
+  <path
+    d="M36.8 13.1 32.4 34c-.3 1.5-1.2 1.9-2.4 1.2l-7-5.2-3.4 3.3c-.4.4-.7.7-1.4.7l.5-7.1 13-11.7c.6-.5-.1-.8-.9-.3L14.7 25.1l-6.9-2.2c-1.5-.5-1.5-1.5.3-2.2l27-10.4c1.2-.4 2.2.3 1.7 2.8Z"
+    fill="#FFFFFF"
+  />
+</svg>
+`;
+
 // TASKS PAGE
 function renderTasks() {
 const box = $("content-view");
@@ -182,11 +199,34 @@ const row = document.createElement("div");
 row.className = "list-row";
 
 const info = document.createElement("div");
+
+if (task.task_type === "telegram_join") {
+info.style.display = "flex";
+info.style.alignItems = "center";
+info.style.gap = "12px";
+
+const icon = document.createElement("div");
+icon.innerHTML = telegramIcon;
+icon.style.width = "38px";
+icon.style.height = "38px";
+icon.style.flexShrink = "0";
+
+const textInfo = document.createElement("div");
+textInfo.innerHTML = "<strong></strong><small></small>";
+
+textInfo.querySelector("strong").textContent = task.title;
+textInfo.querySelector("small").textContent =
+`Reward: ${fmt(task.reward)} ZYRO`;
+
+info.append(icon, textInfo);
+
+} else {
 info.innerHTML = "<strong></strong><small></small>";
 
 info.querySelector("strong").textContent = task.title;
 info.querySelector("small").textContent =
 `Reward: ${fmt(task.reward)} ZYRO`;
+}
 
 const btn = document.createElement("button");
 btn.className = "row-action";
