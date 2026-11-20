@@ -122,5 +122,46 @@
 
 </nav>
 
-  </div>  <script src="/app.js?v=20261120-5"></script></body>
-</html>
+  </div>  <script>
+(function () {
+  function showError(message) {
+    let box = document.getElementById("zyro-debug");
+
+    if (!box) {
+      box = document.createElement("div");
+      box.id = "zyro-debug";
+
+      box.style.cssText = `
+        position:fixed;
+        z-index:999999;
+        top:10px;
+        left:10px;
+        right:10px;
+        padding:16px;
+        background:#8b0000;
+        color:white;
+        font-size:14px;
+        border-radius:10px;
+        word-break:break-word;
+      `;
+
+      document.body.appendChild(box);
+    }
+
+    box.textContent = "ZYRO ERROR: " + message;
+  }
+
+  window.addEventListener("error", function(e) {
+    showError(e.message || "Unknown JavaScript error");
+  });
+
+  window.addEventListener("unhandledrejection", function(e) {
+    showError(e.reason?.message || String(e.reason));
+  });
+})();
+</script>
+
+<script
+  src="/app.js?v=20261120-6"
+  onerror="document.body.insertAdjacentHTML('beforeend','<div style=\'position:fixed;top:10px;left:10px;right:10px;background:red;color:white;padding:15px;z-index:999999\'>APP.JS FILE COULD NOT LOAD</div>')">
+</script>
