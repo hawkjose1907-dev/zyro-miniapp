@@ -48,15 +48,14 @@ body: JSON.stringify(body)
 });
 
 const data = await res.json().catch(() => ({
-  error: "Invalid server response"
+error: "Invalid server response"
 }));
 
 if (!res.ok) {
-  throw new Error(data.error || "Request failed");
+throw new Error(data.error || "Request failed");
 }
 
 return data;
-
 }
 
 // OPEN TELEGRAM CHANNEL OR EXTERNAL LINK
@@ -67,17 +66,16 @@ return;
 }
 
 try {
-  if (url.includes("t.me/") && tg?.openTelegramLink) {
-    tg.openTelegramLink(url);
-  } else if (tg?.openLink) {
-    tg.openLink(url);
-  } else {
-    window.open(url, "_blank", "noopener,noreferrer");
-  }
-} catch (_) {
-  window.location.href = url;
+if (url.includes("t.me/") && tg?.openTelegramLink) {
+tg.openTelegramLink(url);
+} else if (tg?.openLink) {
+tg.openLink(url);
+} else {
+window.open(url, "_blank", "noopener,noreferrer");
 }
-
+} catch (_) {
+window.location.href = url;
+}
 }
 
 // BALANCE
@@ -92,12 +90,10 @@ state.user = user;
 setBalance(user.balance);
 
 const name =
-  user.first_name ||
-  user.username ||
-  "ZYRO member";
+user.first_name ||
+"ZYRO member";
 
 $("greeting").textContent = `Welcome, ${name}`;
-
 }
 
 // DAILY CHECK-IN
@@ -105,15 +101,14 @@ function setCheckin(canClaim, reward, message) {
 $("checkin-btn").disabled = !canClaim;
 
 $("checkin-btn").textContent = canClaim
-  ? `Claim ${fmt(reward)} ZYRO`
-  : "Claimed";
+? `Claim ${fmt(reward)} ZYRO`
+: "Claimed";
 
 $("checkin-copy").textContent =
-  message ||
-  (canClaim
-    ? "Your daily reward is ready."
-    : "Your next daily reward will be available tomorrow.");
-
+message ||
+(canClaim
+? "Your daily reward is ready."
+: "Your next daily reward will be available tomorrow.");
 }
 
 // PAGE NAVIGATION
@@ -127,7 +122,7 @@ const allowedViews = [
 ];
 
 if (!allowedViews.includes(view)) {
-  view = "home";
+view = "home";
 }
 
 state.view = view;
@@ -136,22 +131,22 @@ const home = $("home-view");
 const box = $("content-view");
 
 document.querySelectorAll(".nav-item").forEach((button) => {
-  button.classList.toggle(
-    "active",
-    button.dataset.view === view
-  );
+button.classList.toggle(
+"active",
+button.dataset.view === view
+);
 });
 
 if (view === "home") {
-  home.hidden = false;
-  box.hidden = true;
+home.hidden = false;
+box.hidden = true;
 
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
+window.scrollTo({
+top: 0,
+behavior: "smooth"
+});
 
-  return;
+return;
 }
 
 home.hidden = true;
@@ -163,10 +158,9 @@ if (view === "leaderboard") renderLeaderboard();
 if (view === "profile") renderProfile();
 
 window.scrollTo({
-  top: 0,
-  behavior: "smooth"
+top: 0,
+behavior: "smooth"
 });
-
 }
 
 // TASKS PAGE
@@ -176,94 +170,93 @@ const box = $("content-view");
 box.innerHTML = "<h3>Available Tasks</h3>";
 
 if (!state.tasks.length) {
-  box.insertAdjacentHTML(
-    "beforeend",
-    '<div class="empty">There are no active tasks yet. Please check back later.</div>'
-  );
-  return;
+box.insertAdjacentHTML(
+"beforeend",
+'<div class="empty">There are no active tasks yet. Please check back later.</div>'
+);
+return;
 }
 
 state.tasks.forEach((task) => {
-  const row = document.createElement("div");
-  row.className = "list-row";
+const row = document.createElement("div");
+row.className = "list-row";
 
-  const info = document.createElement("div");
-  info.innerHTML = "<strong></strong><small></small>";
+const info = document.createElement("div");
+info.innerHTML = "<strong></strong><small></small>";
 
-  info.querySelector("strong").textContent = task.title;
-  info.querySelector("small").textContent =
-    `Reward: ${fmt(task.reward)} ZYRO`;
+info.querySelector("strong").textContent = task.title;
+info.querySelector("small").textContent =
+`Reward: ${fmt(task.reward)} ZYRO`;
 
-  const btn = document.createElement("button");
-  btn.className = "row-action";
+const btn = document.createElement("button");
+btn.className = "row-action";
 
-  btn.textContent = task.completed
-    ? "Completed"
-    : task.task_type === "telegram_join"
-      ? "Open channel"
-      : "Open task";
+btn.textContent = task.completed
+? "Completed"
+: task.task_type === "telegram_join"
+? "Open channel"
+: "Open task";
 
-  btn.disabled = !!task.completed;
+btn.disabled = !!task.completed;
 
-  let opened = false;
+let opened = false;
 
-  btn.onclick = async () => {
-    if (
-      task.task_type === "telegram_join" &&
-      !opened
-    ) {
-      if (!task.task_url) {
-        notice("Channel link is missing.");
-        return;
-      }
+btn.onclick = async () => {
+if (
+task.task_type === "telegram_join" &&
+!opened
+) {
+if (!task.task_url) {
+notice("Channel link is missing.");
+return;
+}
 
-      openTaskLink(task.task_url);
-      opened = true;
+openTaskLink(task.task_url);
+opened = true;
 
-      btn.textContent = "Verify membership";
-      notice("Join the channel, then tap Verify membership.");
-      return;
-    }
+btn.textContent = "Verify membership";
+notice("Join the channel, then tap Verify membership.");
+return;
+}
 
-    if (task.task_type === "telegram_join") {
-      btn.disabled = true;
-      btn.textContent = "Checking…";
+if (task.task_type === "telegram_join") {
+btn.disabled = true;
+btn.textContent = "Checking…";
 
-      try {
-        const result = await api("/api/complete-task", {
-          taskId: task.id
-        });
-
-        setBalance(result.balance);
-
-        if (state.user) {
-          state.user.balance = result.balance;
-        }
-
-        task.completed = true;
-        btn.textContent = "Completed";
-
-        notice(`+${fmt(result.reward)} ZYRO added.`);
-      } catch (error) {
-        btn.disabled = false;
-        btn.textContent = "Verify membership";
-        notice(error.message);
-      }
-
-      return;
-    }
-
-    if (task.task_url) {
-      openTaskLink(task.task_url);
-    } else {
-      notice("Task link is not available.");
-    }
-  };
-
-  row.append(info, btn);
-  box.append(row);
+try {
+const result = await api("/api/complete-task", {
+taskId: task.id
 });
 
+setBalance(result.balance);
+
+if (state.user) {
+state.user.balance = result.balance;
+}
+
+task.completed = true;
+btn.textContent = "Completed";
+
+notice(`+${fmt(result.reward)} ZYRO added.`);
+} catch (error) {
+btn.disabled = false;
+btn.textContent = "Verify membership";
+notice(error.message);
+}
+
+return;
+}
+
+if (task.task_url) {
+openTaskLink(task.task_url);
+} else {
+notice("Task link is not available.");
+}
+};
+
+row.append(info, btn);
+box.append(row);
+});
 }
 
 // FRIENDS PAGE
@@ -273,13 +266,13 @@ const box = $("content-view");
 box.innerHTML = "<h3>Invite Friends</h3>";
 
 const link = state.user?.referral_code
-  ? `https://t.me/${BOT_USERNAME}?startapp=ref_${state.user.referral_code}`
-  : "";
+? `https://t.me/${BOT_USERNAME}?startapp=ref_${state.user.referral_code}`
+: "";
 
 const description = document.createElement("p");
 description.className = "empty";
 description.textContent =
-  "Invite your friends and grow the ZYRO community.";
+"Invite your friends and grow the ZYRO community.";
 
 box.append(description);
 
@@ -290,75 +283,75 @@ const info = document.createElement("div");
 info.innerHTML = "<strong>Your invite link</strong><small></small>";
 
 info.querySelector("small").textContent =
-  link || "Not available";
+link || "Not available";
 
 const btn = document.createElement("button");
 btn.className = "row-action";
 btn.textContent = "Share";
 
 btn.onclick = async () => {
-  if (!link) {
-    notice("Invite link is not available.");
-    return;
-  }
+if (!link) {
+notice("Invite link is not available.");
+return;
+}
 
-  const text = "Join me on ZYRO! 🚀";
+const text = "Join me on ZYRO! 🚀";
 
-  const shareUrl =
-    `https://t.me/share/url?url=${encodeURIComponent(link)}` +
-    `&text=${encodeURIComponent(text)}`;
+const shareUrl =
+`https://t.me/share/url?url=${encodeURIComponent(link)}` +
+`&text=${encodeURIComponent(text)}`;
 
-  try {
-    if (tg?.openTelegramLink) {
-      tg.openTelegramLink(shareUrl);
-      notice("Choose a Telegram chat to share ZYRO.");
-      return;
-    }
+try {
+if (tg?.openTelegramLink) {
+tg.openTelegramLink(shareUrl);
+notice("Choose a Telegram chat to share ZYRO.");
+return;
+}
 
-    if (navigator.share) {
-      await navigator.share({
-        title: "Join ZYRO",
-        text,
-        url: link
-      });
+if (navigator.share) {
+await navigator.share({
+title: "Join ZYRO",
+text,
+url: link
+});
 
-      notice("Share completed.");
-      return;
-    }
+notice("Share completed.");
+return;
+}
 
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(link);
-      notice("Invite link copied!");
-      return;
-    }
+if (navigator.clipboard?.writeText) {
+await navigator.clipboard.writeText(link);
+notice("Invite link copied!");
+return;
+}
 
-    const input = document.createElement("textarea");
-    input.value = link;
-    input.style.position = "fixed";
-    input.style.opacity = "0";
+const input = document.createElement("textarea");
+input.value = link;
+input.style.position = "fixed";
+input.style.opacity = "0";
 
-    document.body.appendChild(input);
-    input.select();
+document.body.appendChild(input);
+input.select();
 
-    const copied = document.execCommand("copy");
-    input.remove();
+const copied = document.execCommand("copy");
+input.remove();
 
-    notice(
-      copied
-        ? "Invite link copied!"
-        : "Please copy your invite link manually."
-    );
+notice(
+copied
+? "Invite link copied!"
+: "Please copy your invite link manually."
+);
 
-  } catch (error) {
-    if (error.name === "AbortError") return;
+} catch (error) {
+if (error.name === "AbortError") return;
 
-    try {
-      await navigator.clipboard.writeText(link);
-      notice("Invite link copied!");
-    } catch (_) {
-      notice("Unable to share. Please copy your invite link.");
-    }
-  }
+try {
+await navigator.clipboard.writeText(link);
+notice("Invite link copied!");
+} catch (_) {
+notice("Unable to share. Please copy your invite link.");
+}
+}
 };
 
 row.append(info, btn);
@@ -379,10 +372,9 @@ box.append(count);
 const rewardInfo = document.createElement("div");
 rewardInfo.className = "empty";
 rewardInfo.textContent =
-  "Earn 100 ZYRO for every friend who completes their first daily check-in.";
+"Earn 100 ZYRO for every friend who completes their first daily check-in.";
 
 box.append(rewardInfo);
-
 }
 
 // LEADERBOARD PAGE
@@ -390,53 +382,51 @@ async function renderLeaderboard() {
 const box = $("content-view");
 
 box.innerHTML =
-  "<h3>Leaderboard</h3>" +
-  '<div class="empty">Loading members…</div>';
+"<h3>Leaderboard</h3>" +
+'<div class="empty">Loading members…</div>';
 
 try {
-  const data = await api("/api/leaderboard");
+const data = await api("/api/leaderboard");
 
-  box.innerHTML = "<h3>Leaderboard</h3>";
+box.innerHTML = "<h3>Leaderboard</h3>";
 
-  if (!data.members?.length) {
-    box.insertAdjacentHTML(
-      "beforeend",
-      '<div class="empty">No members yet.</div>'
-    );
-    return;
-  }
-
-  data.members.forEach((member, index) => {
-    const row = document.createElement("div");
-    row.className = "list-row";
-
-    row.innerHTML =
-      "<div><strong></strong><small></small></div><strong></strong>";
-
-    row.querySelector("div strong").textContent =
-      member.username
-        ? `@${member.username}`
-        : member.first_name || "ZYRO member";
-
-    row.querySelector("small").textContent =
-      `Rank #${index + 1}`;
-
-    row.lastElementChild.textContent =
-      `${fmt(member.balance)} ZYRO`;
-
-    box.append(row);
-  });
-
-} catch (error) {
-  box.innerHTML = "<h3>Leaderboard</h3>";
-
-  const message = document.createElement("div");
-  message.className = "empty";
-  message.textContent = error.message;
-
-  box.append(message);
+if (!data.members?.length) {
+box.insertAdjacentHTML(
+"beforeend",
+'<div class="empty">No members yet.</div>'
+);
+return;
 }
 
+data.members.forEach((member, index) => {
+const row = document.createElement("div");
+row.className = "list-row";
+
+row.innerHTML =
+"<div><strong></strong><small></small></div><strong></strong>";
+
+// Kullanıcı adı yerine görünen isim
+row.querySelector("div strong").textContent =
+member.first_name || "ZYRO member";
+
+row.querySelector("small").textContent =
+`Rank #${index + 1}`;
+
+row.lastElementChild.textContent =
+`${fmt(member.balance)} ZYRO`;
+
+box.append(row);
+});
+
+} catch (error) {
+box.innerHTML = "<h3>Leaderboard</h3>";
+
+const message = document.createElement("div");
+message.className = "empty";
+message.textContent = error.message;
+
+box.append(message);
+}
 }
 
 // PROFILE PAGE
@@ -449,24 +439,24 @@ const row = document.createElement("div");
 row.className = "profile-line";
 
 if (state.user?.photo_url) {
-  const img = document.createElement("img");
-  img.className = "avatar";
-  img.src = state.user.photo_url;
-  img.alt = "Profile";
+const img = document.createElement("img");
+img.className = "avatar";
+img.src = state.user.photo_url;
+img.alt = "Profile";
 
-  row.append(img);
+row.append(img);
 }
 
 const txt = document.createElement("div");
 txt.innerHTML = "<strong></strong><small></small>";
 
 txt.querySelector("strong").textContent =
-  state.user?.first_name || "ZYRO member";
+state.user?.first_name || "ZYRO member";
 
 txt.querySelector("small").textContent =
-  state.user?.username
-    ? `@${state.user.username}`
-    : "Telegram member";
+state.user?.username
+? `@${state.user.username}`
+: "Telegram member";
 
 row.append(txt);
 box.append(row);
@@ -474,20 +464,20 @@ box.append(row);
 const balance = document.createElement("div");
 balance.className = "profile-info";
 balance.innerHTML =
-  "<span>ZYRO Balance</span><strong></strong>";
+"<span>ZYRO Balance</span><strong></strong>";
 
 balance.querySelector("strong").textContent =
-  `${fmt(state.user?.balance)} ZYRO`;
+`${fmt(state.user?.balance)} ZYRO`;
 
 box.append(balance);
 
 const referral = document.createElement("div");
 referral.className = "profile-info";
 referral.innerHTML =
-  "<span>Successful invites</span><strong></strong>";
+"<span>Successful invites</span><strong></strong>";
 
 referral.querySelector("strong").textContent =
-  state.referralCount;
+state.referralCount;
 
 box.append(referral);
 
@@ -495,10 +485,9 @@ const note = document.createElement("div");
 note.className = "empty";
 
 note.textContent =
-  "Your ZYRO balance is an internal app record. No blockchain transfers or withdrawals are available in this version.";
+"Your ZYRO balance is an internal app record. No blockchain transfers or withdrawals are available in this version.";
 
 box.append(note);
-
 }
 
 // NAVIGATION BUTTONS
@@ -514,34 +503,33 @@ $("checkin-btn").disabled = true;
 notice("Processing your daily reward…");
 
 try {
-  const data = await api("/api/checkin");
+const data = await api("/api/checkin");
 
-  setBalance(data.balance);
+setBalance(data.balance);
 
-  if (state.user) {
-    state.user.balance = data.balance;
-  }
-
-  setCheckin(
-    false,
-    0,
-    "Your daily reward has been added."
-  );
-
-  let message =
-    `+${fmt(data.reward)} ZYRO added to your balance.`;
-
-  if (Number(data.referral_reward) > 0) {
-    message += " Your inviter received 100 ZYRO!";
-  }
-
-  notice(message);
-
-} catch (error) {
-  notice(error.message);
-  $("checkin-btn").disabled = false;
+if (state.user) {
+state.user.balance = data.balance;
 }
 
+setCheckin(
+false,
+0,
+"Your daily reward has been added."
+);
+
+let message =
+`+${fmt(data.reward)} ZYRO added to your balance.`;
+
+if (Number(data.referral_reward) > 0) {
+message += " Your inviter received 100 ZYRO!";
+}
+
+notice(message);
+
+} catch (error) {
+notice(error.message);
+$("checkin-btn").disabled = false;
+}
 });
 
 // INITIALIZE APP
@@ -550,49 +538,48 @@ if (!initData) {
 $("greeting").textContent =
 "Open ZYRO in Telegram";
 
-  setCheckin(
-    false,
-    0,
-    "Please launch this app from @zyrominiappbot in Telegram."
-  );
+setCheckin(
+false,
+0,
+"Please launch this app from @zyrominiappbot in Telegram."
+);
 
-  notice("Telegram authentication is required.");
-  return;
+notice("Telegram authentication is required.");
+return;
 }
 
 try {
-  const data = await api("/api/me", {
-    startParam
-  });
+const data = await api("/api/me", {
+startParam
+});
 
-  setUser(data.user);
+setUser(data.user);
 
-  state.tasks = data.tasks || [];
-  state.referralCount = data.referralCount || 0;
+state.tasks = data.tasks || [];
+state.referralCount = data.referralCount || 0;
 
-  setCheckin(
-    data.canClaimDaily,
-    data.dailyReward,
-    data.canClaimDaily
-      ? "Your daily reward is ready."
-      : "You have already checked in today."
-  );
+setCheckin(
+data.canClaimDaily,
+data.dailyReward,
+data.canClaimDaily
+? "Your daily reward is ready."
+: "You have already checked in today."
+);
 
-  activate("home");
+activate("home");
 
 } catch (error) {
-  notice(error.message);
+notice(error.message);
 
-  $("greeting").textContent =
-    "Unable to load your account";
+$("greeting").textContent =
+"Unable to load your account";
 
-  setCheckin(
-    false,
-    0,
-    "Please try again later."
-  );
+setCheckin(
+false,
+0,
+"Please try again later."
+);
 }
-
 }
 
 // START APP AND HIDE SPLASH
@@ -602,4 +589,4 @@ setTimeout(() => {
 $("zyro-splash")?.classList.add("hide");
 }, 2000);
 
-})()
+})();
