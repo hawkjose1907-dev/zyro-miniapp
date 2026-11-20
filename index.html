@@ -6,69 +6,130 @@
   <meta name="theme-color" content="#080b12">
   <meta name="description" content="ZYRO Telegram community">
   <title>ZYRO</title>
+
   <link rel="icon" type="image/png" href="/assets/zyro-logo.png">
   <link rel="stylesheet" href="/styles.css">
   <script src="/vendor/telegram-web-app.js"></script>
 </head>
+
 <body>
   <div class="app-shell">
+
+    <!-- HEADER -->
     <header class="topbar">
       <div class="brand">
-        <img src="/assets/zyro-logo.png" alt="ZYRO logo">
+        <img src="/assets/zyro-logo.png" alt="ZYRO">
         <span>ZYRO</span>
       </div>
-      <div class="network-pill"><i></i> COMMUNITY</div>
+
+      <div class="network-pill">
+        <i></i> COMMUNITY
+      </div>
     </header>
 
     <main>
-      <section class="hero panel">
-        <div class="hero-copy">
-          <div class="eyebrow">WELCOME TO THE COMMUNITY</div>
-          <h1 id="greeting">Welcome to ZYRO</h1>
-          <p>Your place in the ZYRO community starts here.</p>
+
+      <!-- HOME PAGE -->
+      <div id="home-view" class="page-view">
+
+        <section class="hero panel">
+          <div class="hero-copy">
+            <div class="eyebrow">WELCOME TO ZYRO</div>
+            <h1 id="greeting">Welcome to ZYRO</h1>
+            <p>Your community. Your rewards.</p>
+          </div>
+
+          <img class="hero-mark" src="/assets/zyro-logo.png" alt="">
+        </section>
+
+        <section class="balance-card panel">
+          <div class="balance-head">
+            <span>YOUR BALANCE</span>
+            <span class="live-tag"><i></i> IN-APP</span>
+          </div>
+
+          <div class="balance-value">
+            <strong id="balance">0.00</strong>
+            <span>ZYRO</span>
+          </div>
+
+          <div class="balance-foot">
+            Your balance in the ZYRO app
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">DAILY REWARD</span>
+              <h2>Daily Check-in</h2>
+            </div>
+            <span class="day-badge">24H</span>
+          </div>
+
+          <div class="checkin-card panel">
+            <div>
+              <strong>Come back every day</strong>
+              <p id="checkin-copy">Claim your daily ZYRO reward.</p>
+            </div>
+
+            <button id="checkin-btn" class="primary-btn" disabled>
+              Loading…
+            </button>
+          </div>
+        </section>
+
+        <div class="footnote">
+          ZYRO balances are internal app records.
+          Blockchain transfers and withdrawals are not available yet.
         </div>
-        <img class="hero-mark" src="/assets/zyro-logo.png" alt="">
+
+      </div>
+
+      <!-- OTHER PAGES -->
+      <section
+        id="content-view"
+        class="section content-view panel"
+        hidden>
       </section>
 
-      <section class="balance-card panel">
-        <div class="balance-head">
-          <span>YOUR ZYRO BALANCE</span>
-          <span class="live-tag"><i></i> IN-APP</span>
-        </div>
-        <div class="balance-value"><strong id="balance">0.00</strong><span>ZYRO</span></div>
-        <div class="balance-foot">Recorded in the app database · Not an on-chain token</div>
-      </section>
-
-      <section class="section">
-        <div class="section-heading"><div><span class="eyebrow">DAILY REWARD</span><h2>Daily Check-in</h2></div><span class="day-badge">24H</span></div>
-        <div class="checkin-card panel">
-          <div><strong>Come back every day</strong><p id="checkin-copy">Claim your daily ZYRO reward.</p></div>
-          <button id="checkin-btn" class="primary-btn" disabled>Loading…</button>
-        </div>
-      </section>
-
-      <section class="section">
-        <div class="section-heading"><div><span class="eyebrow">EXPLORE</span><h2>Community</h2></div></div>
-        <div class="quick-grid">
-          <button class="quick-card panel" data-view="tasks"><span class="quick-icon">✦</span><strong>Tasks</strong><small>Earn ZYRO</small></button>
-          <button class="quick-card panel" data-view="friends"><span class="quick-icon">♧</span><strong>Friends</strong><small>Invite people</small></button>
-          <button class="quick-card panel" data-view="leaderboard"><span class="quick-icon">↗</span><strong>Leaderboard</strong><small>Top members</small></button>
-          <button class="quick-card panel" data-view="profile"><span class="quick-icon">◉</span><strong>Profile</strong><small>Your account</small></button>
-        </div>
-      </section>
-
-      <section id="content-view" class="section content-view panel" hidden></section>
+      <!-- NOTIFICATIONS -->
       <div id="notice" class="notice" role="status" aria-live="polite"></div>
-      <div class="footnote">ZYRO balances are internal app records. No blockchain transfers or withdrawals are available in this version.</div>
+
     </main>
 
+    <!-- BOTTOM NAVIGATION -->
     <nav class="bottom-nav" aria-label="Main navigation">
-      <button class="nav-item active" data-view="home"><span>⌂</span>Home</button>
-      <button class="nav-item" data-view="tasks"><span>✦</span>Tasks</button>
-      <button class="nav-item" data-view="friends"><span>♧</span>Friends</button>
-      <button class="nav-item" data-view="leaderboard"><span>↗</span>Ranks</button>
+
+      <button class="nav-item active" data-view="home">
+        <span>⌂</span>
+        Home
+      </button>
+
+      <button class="nav-item" data-view="tasks">
+        <span>✦</span>
+        Tasks
+      </button>
+
+      <button class="nav-item" data-view="friends">
+        <span>♧</span>
+        Friends
+      </button>
+
+      <button class="nav-item" data-view="leaderboard">
+        <span>↗</span>
+        Ranks
+      </button>
+
+      <button class="nav-item" data-view="profile">
+        <span>◉</span>
+        Profile
+      </button>
+
     </nav>
+
   </div>
+
   <script src="/app.js"></script>
 </body>
 </html>
