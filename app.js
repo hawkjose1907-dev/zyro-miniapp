@@ -2,10 +2,10 @@
 const tg = window.Telegram?.WebApp;
 
 try {
-tg?.ready();
-tg?.expand();
-tg?.setHeaderColor?.("#080b12");
-tg?.setBackgroundColor?.("#080b12");
+  tg?.ready();
+  tg?.expand();
+  tg?.setHeaderColor?.("#080b12");
+  tg?.setBackgroundColor?.("#080b12");
 } catch (_) {}
 
 const $ = (id) => document.getElementById(id);
@@ -16,157 +16,155 @@ const TON_MANIFEST =
 "https://zyro-miniapp.vercel.app/tonconnect-manifest.json";
 
 const state = {
-user: null,
-tasks: [],
-view: "home",
-referralCount: 0,
-tonWallet: null,
-tonUI: null,
-tonInitStarted: false
+  user: null,
+  tasks: [],
+  view: "home",
+  referralCount: 0,
+  tonWallet: null,
+  tonUI: null,
+  tonInitStarted: false
 };
 
 const initData = tg?.initData || "";
 
 const startParam =
-tg?.initDataUnsafe?.start_param ||
-new URLSearchParams(location.search).get("ref") ||
-"";
+  tg?.initDataUnsafe?.start_param ||
+  new URLSearchParams(location.search).get("ref") ||
+  "";
 
 const notice = (msg) => {
-const el = $("notice");
-if (el) el.textContent = msg || "";
+  const el = $("notice");
+  if (el) el.textContent = msg || "";
 };
 
 const fmt = (n) =>
-Number(n || 0).toLocaleString(undefined, {
-maximumFractionDigits: 4
-});
+  Number(n || 0).toLocaleString(undefined, {
+    maximumFractionDigits: 4
+  });
 
 // API REQUEST
 async function api(path, body = {}) {
-const res = await fetch(path, {
-method: "POST",
-headers: {
-"Content-Type": "application/json",
-"X-Telegram-Init-Data": initData
-},
-body: JSON.stringify(body)
-});
+  const res = await fetch(path, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Telegram-Init-Data": initData
+    },
+    body: JSON.stringify(body)
+  });
 
-const data = await res.json().catch(() => ({
-error: "Invalid server response"
-}));
+  const data = await res.json().catch(() => ({
+    error: "Invalid server response"
+  }));
 
-if (!res.ok) {
-throw new Error(data.error || "Request failed");
-}
+  if (!res.ok) {
+    throw new Error(data.error || "Request failed");
+  }
 
-return data;
+  return data;
 }
 
 // OPEN TELEGRAM CHANNEL OR EXTERNAL LINK
 function openTaskLink(url) {
-if (!url) {
-notice("Task link is not available.");
-return;
-}
+  if (!url) {
+    notice("Task link is not available.");
+    return;
+  }
 
-try {
-if (url.includes("t.me/") && tg?.openTelegramLink) {
-tg.openTelegramLink(url);
-} else if (tg?.openLink) {
-tg.openLink(url);
-} else {
-window.open(url, "_blank", "noopener,noreferrer");
-}
-} catch (_) {
-window.location.href = url;
-}
+  try {
+    if (url.includes("t.me/") && tg?.openTelegramLink) {
+      tg.openTelegramLink(url);
+    } else if (tg?.openLink) {
+      tg.openLink(url);
+    } else {
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
+  } catch (_) {
+    window.location.href = url;
+  }
 }
 
 // BALANCE
 function setBalance(value) {
-$("balance").textContent = fmt(value);
+  $("balance").textContent = fmt(value);
 }
 
 // USER
 function setUser(user) {
-state.user = user;
+  state.user = user;
 
-setBalance(user.balance);
+  setBalance(user.balance);
 
-const name =
-user.first_name ||
-"ZYRO member";
+  const name = user.first_name || "ZYRO member";
 
-$("greeting").textContent = `Welcome, ${name}`;
+  $("greeting").textContent = `Welcome, ${name}`;
 }
 
 // DAILY CHECK-IN
 function setCheckin(canClaim, reward, message) {
-$("checkin-btn").disabled = !canClaim;
+  $("checkin-btn").disabled = !canClaim;
 
-$("checkin-btn").textContent = canClaim
-? `Claim ${fmt(reward)} ZYRO`
-: "Claimed";
+  $("checkin-btn").textContent = canClaim
+    ? `Claim ${fmt(reward)} ZYRO`
+    : "Claimed";
 
-$("checkin-copy").textContent =
-message ||
-(canClaim
-? "Your daily reward is ready."
-: "Your next daily reward will be available tomorrow.");
+  $("checkin-copy").textContent =
+    message ||
+    (canClaim
+      ? "Your daily reward is ready."
+      : "Your next daily reward will be available tomorrow.");
 }
 
 // PAGE NAVIGATION
 function activate(view) {
-const allowedViews = [
-"home",
-"tasks",
-"friends",
-"leaderboard",
-"profile"
-];
+  const allowedViews = [
+    "home",
+    "tasks",
+    "friends",
+    "leaderboard",
+    "profile"
+  ];
 
-if (!allowedViews.includes(view)) {
-view = "home";
-}
+  if (!allowedViews.includes(view)) {
+    view = "home";
+  }
 
-state.view = view;
+  state.view = view;
 
-const home = $("home-view");
-const box = $("content-view");
+  const home = $("home-view");
+  const box = $("content-view");
 
-document.querySelectorAll(".nav-item").forEach((button) => {
-button.classList.toggle(
-"active",
-button.dataset.view === view
-);
-});
+  document.querySelectorAll(".nav-item").forEach((button) => {
+    button.classList.toggle(
+      "active",
+      button.dataset.view === view
+    );
+  });
 
-if (view === "home") {
-home.hidden = false;
-box.hidden = true;
+  if (view === "home") {
+    home.hidden = false;
+    box.hidden = true;
 
-window.scrollTo({
-top: 0,
-behavior: "smooth"
-});
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
 
-return;
-}
+    return;
+  }
 
-home.hidden = true;
-box.hidden = false;
+  home.hidden = true;
+  box.hidden = false;
 
-if (view === "tasks") renderTasks();
-if (view === "friends") renderFriends();
-if (view === "leaderboard") renderLeaderboard();
-if (view === "profile") renderProfile();
+  if (view === "tasks") renderTasks();
+  if (view === "friends") renderFriends();
+  if (view === "leaderboard") renderLeaderboard();
+  if (view === "profile") renderProfile();
 
-window.scrollTo({
-top: 0,
-behavior: "smooth"
-});
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth"
+  });
 }
 
 // TELEGRAM ICON
@@ -189,739 +187,651 @@ xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 
 // TASKS PAGE
 function renderTasks() {
-const box = $("content-view");
+  const box = $("content-view");
 
-box.innerHTML = "<h3>Available Tasks</h3>";
+  box.innerHTML = "<h3>Available Tasks</h3>";
 
-if (!state.tasks.length) {
-box.insertAdjacentHTML(
-"beforeend",
-'<div class="empty">There are no active tasks yet. Please check back later.</div>'
-);
-return;
-}
+  if (!state.tasks.length) {
+    box.insertAdjacentHTML(
+      "beforeend",
+      '<div class="empty">There are no active tasks yet. Please check back later.</div>'
+    );
+    return;
+  }
 
-state.tasks.forEach((task) => {
-const row = document.createElement("div");
-row.className = "list-row";
+  state.tasks.forEach((task) => {
+    const row = document.createElement("div");
+    row.className = "list-row";
 
-const info = document.createElement("div");
+    const info = document.createElement("div");
 
-if (
-task.task_type === "telegram_join" ||
-task.task_type === "x_follow"
-) {
-info.style.display = "flex";
-info.style.alignItems = "center";
-info.style.gap = "12px";
+    if (
+      task.task_type === "telegram_join" ||
+      task.task_type === "x_follow"
+    ) {
+      info.style.display = "flex";
+      info.style.alignItems = "center";
+      info.style.gap = "12px";
 
-const icon = document.createElement("div");
+      const icon = document.createElement("div");
 
-icon.innerHTML =
-task.task_type === "telegram_join"
-? telegramIcon
-: xIcon;
+      icon.innerHTML =
+        task.task_type === "telegram_join"
+          ? telegramIcon
+          : xIcon;
 
-icon.style.width = "38px";
-icon.style.height = "38px";
-icon.style.flexShrink = "0";
+      icon.style.width = "38px";
+      icon.style.height = "38px";
+      icon.style.flexShrink = "0";
 
-const textInfo = document.createElement("div");
-textInfo.innerHTML = "<strong></strong><small></small>";
+      const textInfo = document.createElement("div");
+      textInfo.innerHTML = "<strong></strong><small></small>";
 
-textInfo.querySelector("strong").textContent = task.title;
-textInfo.querySelector("small").textContent =
-`Reward: ${fmt(task.reward)} ZYRO`;
+      textInfo.querySelector("strong").textContent = task.title;
+      textInfo.querySelector("small").textContent =
+        `Reward: ${fmt(task.reward)} ZYRO`;
 
-info.append(icon, textInfo);
+      info.append(icon, textInfo);
 
-} else {
-info.innerHTML = "<strong></strong><small></small>";
+    } else {
+      info.innerHTML = "<strong></strong><small></small>";
 
-info.querySelector("strong").textContent = task.title;
-info.querySelector("small").textContent =
-`Reward: ${fmt(task.reward)} ZYRO`;
-}
+      info.querySelector("strong").textContent = task.title;
+      info.querySelector("small").textContent =
+        `Reward: ${fmt(task.reward)} ZYRO`;
+    }
 
-const btn = document.createElement("button");
-btn.className = "row-action";
+    const btn = document.createElement("button");
+    btn.className = "row-action";
 
-let opened = false;
+    let opened = false;
 
-if (task.completed) {
-btn.textContent = "Completed ✓";
-btn.disabled = true;
+    if (task.completed) {
+      btn.textContent = "Completed ✓";
+      btn.disabled = true;
+    } else if (task.task_type === "telegram_join") {
+      btn.textContent = "Open channel";
+    } else if (task.task_type === "x_follow") {
+      btn.textContent = "Follow on X";
+    } else {
+      btn.textContent = "Open task";
+    }
 
-} else if (task.task_type === "telegram_join") {
-btn.textContent = "Open channel";
+    btn.onclick = async () => {
+      if (task.completed) return;
 
-} else if (task.task_type === "x_follow") {
-btn.textContent = "Follow on X";
+      // TELEGRAM TASK
+      if (task.task_type === "telegram_join") {
+        if (!opened) {
+          if (!task.task_url) {
+            notice("Channel link is missing.");
+            return;
+          }
 
-} else {
-btn.textContent = "Open task";
-}
+          openTaskLink(task.task_url);
+          opened = true;
 
-btn.onclick = async () => {
+          btn.textContent = "Verify membership";
+          notice("Join the channel, then tap Verify membership.");
+          return;
+        }
 
-if (task.completed) return;
+        btn.disabled = true;
+        btn.textContent = "Checking…";
 
-// TELEGRAM TASK
-if (task.task_type === "telegram_join") {
+        try {
+          const result = await api("/api/complete-task", {
+            taskId: task.id
+          });
 
-if (!opened) {
-if (!task.task_url) {
-notice("Channel link is missing.");
-return;
-}
+          setBalance(result.balance);
 
-openTaskLink(task.task_url);
-opened = true;
+          if (state.user) {
+            state.user.balance = result.balance;
+          }
 
-btn.textContent = "Verify membership";
-notice("Join the channel, then tap Verify membership.");
-return;
-}
+          task.completed = true;
+          btn.textContent = "Completed ✓";
 
-btn.disabled = true;
-btn.textContent = "Checking…";
+          notice(`+${fmt(result.reward)} ZYRO added.`);
 
-try {
-const result = await api("/api/complete-task", {
-taskId: task.id
-});
+        } catch (error) {
+          btn.disabled = false;
+          btn.textContent = "Verify membership";
+          notice(error.message);
+        }
 
-setBalance(result.balance);
+        return;
+      }
 
-if (state.user) {
-state.user.balance = result.balance;
-}
+      // X TASK
+      if (task.task_type === "x_follow") {
+        if (!opened) {
+          openTaskLink(task.task_url);
 
-task.completed = true;
-btn.textContent = "Completed ✓";
+          opened = true;
+          btn.textContent = "Claim 100 ZYRO";
 
-notice(`+${fmt(result.reward)} ZYRO added.`);
+          notice("You can now claim your X task reward.");
+          return;
+        }
 
-} catch (error) {
-btn.disabled = false;
-btn.textContent = "Verify membership";
-notice(error.message);
-}
+        btn.disabled = true;
+        btn.textContent = "Claiming…";
 
-return;
-}
+        try {
+          const result = await api("/api/complete-task", {
+            taskId: task.id
+          });
 
-// X TASK
-if (task.task_type === "x_follow") {
+          setBalance(result.balance);
 
-if (!opened) {
-openTaskLink(task.task_url);
+          if (state.user) {
+            state.user.balance = result.balance;
+          }
 
-opened = true;
-btn.textContent = "Claim 100 ZYRO";
+          task.completed = true;
+          btn.textContent = "Completed ✓";
 
-notice("You can now claim your X task reward.");
-return;
-}
+          notice(`+${fmt(result.reward)} ZYRO added to your balance.`);
 
-btn.disabled = true;
-btn.textContent = "Claiming…";
+        } catch (error) {
+          btn.disabled = false;
+          btn.textContent = "Claim 100 ZYRO";
+          notice(error.message);
+        }
 
-try {
-const result = await api("/api/complete-task", {
-taskId: task.id
-});
+        return;
+      }
 
-setBalance(result.balance);
+      // OTHER TASKS
+      if (task.task_url) {
+        openTaskLink(task.task_url);
+      } else {
+        notice("Task link is not available.");
+      }
+    };
 
-if (state.user) {
-state.user.balance = result.balance;
-}
-
-task.completed = true;
-
-btn.textContent = "Completed ✓";
-
-notice(`+${fmt(result.reward)} ZYRO added to your balance.`);
-
-} catch (error) {
-btn.disabled = false;
-btn.textContent = "Claim 100 ZYRO";
-notice(error.message);
-}
-
-return;
-}
-
-// OTHER TASKS
-if (task.task_url) {
-openTaskLink(task.task_url);
-} else {
-notice("Task link is not available.");
-}
-
-};
-
-row.append(info, btn);
-box.append(row);
-});
+    row.append(info, btn);
+    box.append(row);
+  });
 }
 
 // FRIENDS PAGE
 function renderFriends() {
-const box = $("content-view");
+  const box = $("content-view");
 
-box.innerHTML = "<h3>Invite Friends</h3>";
+  box.innerHTML = "<h3>Invite Friends</h3>";
 
-const link = state.user?.referral_code
-? `https://t.me/${BOT_USERNAME}?startapp=ref_${state.user.referral_code}`
-: "";
+  const link = state.user?.referral_code
+    ? `https://t.me/${BOT_USERNAME}?startapp=ref_${state.user.referral_code}`
+    : "";
 
-const description = document.createElement("p");
-description.className = "empty";
-description.textContent =
-"Invite your friends and grow the ZYRO community.";
+  const description = document.createElement("p");
+  description.className = "empty";
+  description.textContent =
+    "Invite your friends and grow the ZYRO community.";
 
-box.append(description);
+  box.append(description);
 
-const row = document.createElement("div");
-row.className = "list-row";
+  const row = document.createElement("div");
+  row.className = "list-row";
 
-const info = document.createElement("div");
-info.innerHTML = "<strong>Your invite link</strong><small></small>";
+  const info = document.createElement("div");
+  info.innerHTML = "<strong>Your invite link</strong><small></small>";
 
-info.querySelector("small").textContent =
-link || "Not available";
+  info.querySelector("small").textContent =
+    link || "Not available";
 
-const btn = document.createElement("button");
-btn.className = "row-action";
-btn.textContent = "Share";
+  const btn = document.createElement("button");
+  btn.className = "row-action";
+  btn.textContent = "Share";
 
-btn.onclick = async () => {
-if (!link) {
-notice("Invite link is not available.");
-return;
-}
+  btn.onclick = async () => {
+    if (!link) {
+      notice("Invite link is not available.");
+      return;
+    }
 
-const text = "Join me on ZYRO! 🚀";
+    const text = "Join me on ZYRO! 🚀";
 
-const shareUrl =
-`https://t.me/share/url?url=${encodeURIComponent(link)}` +
-`&text=${encodeURIComponent(text)}`;
+    const shareUrl =
+      `https://t.me/share/url?url=${encodeURIComponent(link)}` +
+      `&text=${encodeURIComponent(text)}`;
 
-try {
-if (tg?.openTelegramLink) {
-tg.openTelegramLink(shareUrl);
-notice("Choose a Telegram chat to share ZYRO.");
-return;
-}
+    try {
+      if (tg?.openTelegramLink) {
+        tg.openTelegramLink(shareUrl);
+        notice("Choose a Telegram chat to share ZYRO.");
+        return;
+      }
 
-if (navigator.share) {
-await navigator.share({
-title: "Join ZYRO",
-text,
-url: link
-});
+      if (navigator.share) {
+        await navigator.share({
+          title: "Join ZYRO",
+          text,
+          url: link
+        });
 
-notice("Share completed.");
-return;
-}
+        notice("Share completed.");
+        return;
+      }
 
-if (navigator.clipboard?.writeText) {
-await navigator.clipboard.writeText(link);
-notice("Invite link copied!");
-return;
-}
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(link);
+        notice("Invite link copied!");
+        return;
+      }
 
-const input = document.createElement("textarea");
-input.value = link;
-input.style.position = "fixed";
-input.style.opacity = "0";
+      const input = document.createElement("textarea");
+      input.value = link;
+      input.style.position = "fixed";
+      input.style.opacity = "0";
 
-document.body.appendChild(input);
-input.select();
+      document.body.appendChild(input);
+      input.select();
 
-const copied = document.execCommand("copy");
-input.remove();
+      const copied = document.execCommand("copy");
+      input.remove();
 
-notice(
-copied
-? "Invite link copied!"
-: "Please copy your invite link manually."
-);
+      notice(
+        copied
+          ? "Invite link copied!"
+          : "Please copy your invite link manually."
+      );
 
-} catch (error) {
-if (error.name === "AbortError") return;
+    } catch (error) {
+      if (error.name === "AbortError") return;
 
-try {
-await navigator.clipboard.writeText(link);
-notice("Invite link copied!");
-} catch (_) {
-notice("Unable to share. Please copy your invite link.");
-}
-}
-};
+      try {
+        await navigator.clipboard.writeText(link);
+        notice("Invite link copied!");
+      } catch (_) {
+        notice("Unable to share. Please copy your invite link.");
+      }
+    }
+  };
 
-row.append(info, btn);
-box.append(row);
+  row.append(info, btn);
+  box.append(row);
 
-const count = document.createElement("div");
-count.className = "profile-info";
+  const count = document.createElement("div");
+  count.className = "profile-info";
 
-const label = document.createElement("span");
-label.textContent = "Successful invites";
+  const label = document.createElement("span");
+  label.textContent = "Successful invites";
 
-const value = document.createElement("strong");
-value.textContent = state.referralCount;
+  const value = document.createElement("strong");
+  value.textContent = state.referralCount;
 
-count.append(label, value);
-box.append(count);
+  count.append(label, value);
+  box.append(count);
 
-const rewardInfo = document.createElement("div");
-rewardInfo.className = "empty";
-rewardInfo.textContent =
-"Earn 100 ZYRO for every friend who completes their first daily check-in.";
+  const rewardInfo = document.createElement("div");
+  rewardInfo.className = "empty";
+  rewardInfo.textContent =
+    "Earn 100 ZYRO for every friend who completes their first daily check-in.";
 
-box.append(rewardInfo);
+  box.append(rewardInfo);
 }
 
 // LEADERBOARD PAGE
 async function renderLeaderboard() {
-const box = $("content-view");
+  const box = $("content-view");
 
-box.innerHTML =
-"<h3>🏆 Top 100 ZYRO</h3>" +
-'<div class="empty">Loading rankings…</div>';
+  box.innerHTML =
+    "<h3>🏆 Top 100 ZYRO</h3>" +
+    '<div class="empty">Loading rankings…</div>';
 
-try {
-const data = await api("/api/leaderboard");
+  try {
+    const data = await api("/api/leaderboard");
 
-box.innerHTML = "<h3>🏆 Top 100 ZYRO</h3>";
+    box.innerHTML = "<h3>🏆 Top 100 ZYRO</h3>";
 
-const members = (data.members || []).slice(0, 100);
+    const members = (data.members || []).slice(0, 100);
 
-if (!members.length) {
-box.insertAdjacentHTML(
-"beforeend",
-'<div class="empty">No members yet.</div>'
-);
-return;
-}
+    if (!members.length) {
+      box.insertAdjacentHTML(
+        "beforeend",
+        '<div class="empty">No members yet.</div>'
+      );
+      return;
+    }
 
-members.forEach((member, index) => {
-const rank = index + 1;
+    members.forEach((member, index) => {
+      const rank = index + 1;
 
-const row = document.createElement("div");
-row.className = "list-row";
+      const row = document.createElement("div");
+      row.className = "list-row";
 
-if (rank <= 3) {
-row.classList.add("top-rank");
-}
+      if (rank <= 3) {
+        row.classList.add("top-rank");
+      }
 
-row.innerHTML =
-'<div class="rank-user">' +
-'<span class="rank-medal"></span>' +
-'<div><strong></strong><small></small></div>' +
-'</div>' +
-'<strong class="rank-balance"></strong>';
+      row.innerHTML =
+        '<div class="rank-user">' +
+        '<span class="rank-medal"></span>' +
+        '<div><strong></strong><small></small></div>' +
+        '</div>' +
+        '<strong class="rank-balance"></strong>';
 
-const medal = row.querySelector(".rank-medal");
+      const medal = row.querySelector(".rank-medal");
 
-if (rank === 1) medal.textContent = "🥇";
-else if (rank === 2) medal.textContent = "🥈";
-else if (rank === 3) medal.textContent = "🥉";
-else medal.textContent = `#${rank}`;
+      if (rank === 1) medal.textContent = "🥇";
+      else if (rank === 2) medal.textContent = "🥈";
+      else if (rank === 3) medal.textContent = "🥉";
+      else medal.textContent = `#${rank}`;
 
-row.querySelector(".rank-user div strong").textContent =
-member.first_name || "ZYRO member";
+      row.querySelector(".rank-user div strong").textContent =
+        member.first_name || "ZYRO member";
 
-row.querySelector(".rank-user div small").textContent =
-rank <= 3 ? "" : `Rank #${rank}`;
+      row.querySelector(".rank-user div small").textContent =
+        rank <= 3 ? "" : `Rank #${rank}`;
 
-row.querySelector(".rank-balance").textContent =
-`${fmt(member.balance)} ZYRO`;
+      row.querySelector(".rank-balance").textContent =
+        `${fmt(member.balance)} ZYRO`;
 
-box.append(row);
-});
+      box.append(row);
+    });
 
-} catch (error) {
-box.innerHTML = "<h3>🏆 Top 100 ZYRO</h3>";
+  } catch (error) {
+    box.innerHTML = "<h3>🏆 Top 100 ZYRO</h3>";
 
-const message = document.createElement("div");
-message.className = "empty";
-message.textContent = error.message;
+    const message = document.createElement("div");
+    message.className = "empty";
+    message.textContent = error.message;
 
-box.append(message);
-}
+    box.append(message);
+  }
 }
 
 // TON CONNECT: INITIALIZE ONCE
 function initializeTonConnect() {
-if (state.tonUI) {
-return state.tonUI;
-}
+  if (state.tonUI) {
+    return state.tonUI;
+  }
 
-if (state.tonInitStarted) {
-return null;
-}
+  if (state.tonInitStarted) {
+    return null;
+  }
 
-state.tonInitStarted = true;
+  state.tonInitStarted = true;
 
-const tonLibrary = window.TON_CONNECT_UI;
+  const tonLibrary = window.TON_CONNECT_UI;
 
-if (!tonLibrary?.TonConnectUI) {
-console.error("TON Connect library is not available.");
-return null;
-}
+  if (!tonLibrary?.TonConnectUI) {
+    console.error("TON Connect library is not available.");
+    state.tonInitStarted = false;
+    return null;
+  }
 
-try {
-state.tonUI = new tonLibrary.TonConnectUI({
-manifestUrl: TON_MANIFEST,
-uiPreferences: {
-theme: "DARK",
-borderRadius: "m"
-}
-});
+  try {
+    state.tonUI = new tonLibrary.TonConnectUI({
+      manifestUrl: TON_MANIFEST,
+      uiPreferences: {
+        theme: "DARK",
+        borderRadius: "m"
+      }
+    });
 
-state.tonUI.onStatusChange(
-(wallet) => {
-state.tonWallet = wallet || null;
+    state.tonUI.onStatusChange(
+      (wallet) => {
+        state.tonWallet = wallet || null;
+        updateHeaderWalletButton();
+      },
+      (error) => {
+        console.error("TON Connect error:", error);
+        notice("TON wallet connection error. Please try again.");
+      }
+    );
 
-updateTonWalletPanel();
-},
-(error) => {
-console.error("TON Connect error:", error);
-notice("TON wallet connection error. Please try again.");
-}
-);
+    state.tonUI.connectionRestored
+      .then(() => {
+        state.tonWallet = state.tonUI?.wallet || null;
+        updateHeaderWalletButton();
+      })
+      .catch((error) => {
+        console.error("TON connection restore error:", error);
+      });
 
-state.tonUI.connectionRestored
-.then(() => {
-state.tonWallet = state.tonUI?.wallet || null;
-updateTonWalletPanel();
-})
-.catch((error) => {
-console.error("TON connection restore error:", error);
-});
+    return state.tonUI;
 
-return state.tonUI;
-
-} catch (error) {
-console.error("TON Connect initialization failed:", error);
-return null;
-}
+  } catch (error) {
+    console.error("TON Connect initialization failed:", error);
+    state.tonInitStarted = false;
+    return null;
+  }
 }
 
 // SHORTEN WALLET ADDRESS
 function shortenAddress(address) {
-if (!address) return "";
+  if (!address) return "";
 
-if (address.length < 20) {
-return address;
+  if (address.length < 20) {
+    return address;
+  }
+
+  return (
+    address.substring(0, 8) +
+    "..." +
+    address.substring(address.length - 8)
+  );
 }
 
-return (
-address.substring(0, 8) +
-"..." +
-address.substring(address.length - 8)
-);
-}
+// HEADER WALLET BUTTON
+function updateHeaderWalletButton() {
+  const label = $("ton-header-label");
+  const button = $("ton-header-button");
 
-// TON WALLET PANEL
-function renderTonWalletPanel(box) {
-const section = document.createElement("div");
-section.id = "ton-wallet-section";
+  if (!label || !button) return;
 
-const heading = document.createElement("h3");
-heading.textContent = "TON Wallet";
+  const wallet =
+    state.tonWallet ||
+    state.tonUI?.wallet ||
+    null;
 
-section.append(heading);
-
-const description = document.createElement("p");
-description.className = "empty";
-description.textContent =
-"Connect your TON wallet securely with TON Connect.";
-
-section.append(description);
-
-const status = document.createElement("div");
-status.id = "ton-wallet-status";
-status.className = "profile-info";
-status.textContent = "Checking wallet connection…";
-
-section.append(status);
-
-const address = document.createElement("div");
-address.id = "ton-wallet-address";
-address.className = "profile-info";
-address.style.display = "none";
-
-section.append(address);
-
-const button = document.createElement("button");
-button.id = "ton-wallet-button";
-button.className = "primary-btn";
-button.style.width = "100%";
-button.style.marginTop = "12px";
-button.textContent = "Connect TON Wallet";
-
-button.onclick = async () => {
-const ui = initializeTonConnect();
-
-if (!ui) {
-notice("TON Connect could not be loaded. Please refresh the app.");
-return;
-}
-
-try {
-if (state.tonWallet) {
-button.disabled = true;
-button.textContent = "Disconnecting…";
-
-await ui.disconnect();
-
-state.tonWallet = null;
-updateTonWalletPanel();
-
-notice("TON wallet disconnected.");
-
-} else {
-button.disabled = true;
-button.textContent = "Opening wallets…";
-
-await ui.openModal();
-}
-
-} catch (error) {
-console.error("TON wallet action failed:", error);
-notice(error.message || "Unable to connect TON wallet.");
-} finally {
-button.disabled = false;
-updateTonWalletPanel();
-}
-};
-
-section.append(button);
-box.append(section);
-
-initializeTonConnect();
-updateTonWalletPanel();
-}
-
-// UPDATE TON WALLET PANEL
-function updateTonWalletPanel() {
-if (state.view !== "profile") return;
-
-const status = $("ton-wallet-status");
-const addressBox = $("ton-wallet-address");
-const button = $("ton-wallet-button");
-
-if (!status || !button) return;
-
-const wallet =
-state.tonWallet ||
-state.tonUI?.wallet ||
-null;
-
-if (wallet?.account?.address) {
-const fullAddress = wallet.account.address;
-
-status.textContent = "Wallet connected ✓";
-
-addressBox.style.display = "flex";
-addressBox.style.flexDirection = "column";
-addressBox.style.gap = "6px";
-
-addressBox.innerHTML = "";
-
-const label = document.createElement("span");
-label.textContent = "Connected address";
-
-const value = document.createElement("strong");
-value.textContent = shortenAddress(fullAddress);
-value.title = fullAddress;
-value.style.wordBreak = "break-all";
-
-const copyButton = document.createElement("button");
-copyButton.className = "row-action";
-copyButton.textContent = "Copy address";
-
-copyButton.onclick = async () => {
-try {
-await navigator.clipboard.writeText(fullAddress);
-notice("TON wallet address copied!");
-} catch (_) {
-notice("Unable to copy address.");
-}
-};
-
-addressBox.append(label, value, copyButton);
-
-button.textContent = "Disconnect Wallet";
-
-} else {
-status.textContent = "No TON wallet connected.";
-
-addressBox.style.display = "none";
-addressBox.innerHTML = "";
-
-button.textContent = "Connect TON Wallet";
-}
+  if (wallet?.account?.address) {
+    label.textContent = shortenAddress(wallet.account.address);
+    button.title = "Disconnect wallet";
+    button.setAttribute("aria-label", "Disconnect TON wallet");
+  } else {
+    label.textContent = "CONNECT";
+    button.title = "Connect TON wallet";
+    button.setAttribute("aria-label", "Connect TON wallet");
+  }
 }
 
 // PROFILE PAGE
 function renderProfile() {
-const box = $("content-view");
+  const box = $("content-view");
 
-box.innerHTML = "<h3>Your Profile</h3>";
+  box.innerHTML = "<h3>Your Profile</h3>";
 
-const row = document.createElement("div");
-row.className = "profile-line";
+  const row = document.createElement("div");
+  row.className = "profile-line";
 
-if (state.user?.photo_url) {
-const img = document.createElement("img");
-img.className = "avatar";
-img.src = state.user.photo_url;
-img.alt = "Profile";
+  if (state.user?.photo_url) {
+    const img = document.createElement("img");
+    img.className = "avatar";
+    img.src = state.user.photo_url;
+    img.alt = "Profile";
 
-row.append(img);
-}
+    row.append(img);
+  }
 
-const txt = document.createElement("div");
-txt.innerHTML = "<strong></strong><small></small>";
+  const txt = document.createElement("div");
+  txt.innerHTML = "<strong></strong><small></small>";
 
-txt.querySelector("strong").textContent =
-state.user?.first_name || "ZYRO member";
+  txt.querySelector("strong").textContent =
+    state.user?.first_name || "ZYRO member";
 
-txt.querySelector("small").textContent =
-state.user?.username
-? `@${state.user.username}`
-: "Telegram member";
+  txt.querySelector("small").textContent =
+    state.user?.username
+      ? `@${state.user.username}`
+      : "Telegram member";
 
-row.append(txt);
-box.append(row);
+  row.append(txt);
+  box.append(row);
 
-const balance = document.createElement("div");
-balance.className = "profile-info";
-balance.innerHTML =
-"<span>ZYRO Balance</span><strong></strong>";
+  const balance = document.createElement("div");
+  balance.className = "profile-info";
+  balance.innerHTML =
+    "<span>ZYRO Balance</span><strong></strong>";
 
-balance.querySelector("strong").textContent =
-`${fmt(state.user?.balance)} ZYRO`;
+  balance.querySelector("strong").textContent =
+    `${fmt(state.user?.balance)} ZYRO`;
 
-box.append(balance);
+  box.append(balance);
 
-const referral = document.createElement("div");
-referral.className = "profile-info";
-referral.innerHTML =
-"<span>Successful invites</span><strong></strong>";
+  const referral = document.createElement("div");
+  referral.className = "profile-info";
+  referral.innerHTML =
+    "<span>Successful invites</span><strong></strong>";
 
-referral.querySelector("strong").textContent =
-state.referralCount;
+  referral.querySelector("strong").textContent =
+    state.referralCount;
 
-box.append(referral);
-
-// TON CONNECT WALLET
-renderTonWalletPanel(box);
+  box.append(referral);
 }
 
 // NAVIGATION BUTTONS
 document.querySelectorAll(".nav-item").forEach((button) => {
-button.addEventListener("click", () => {
-activate(button.dataset.view);
+  button.addEventListener("click", () => {
+    activate(button.dataset.view);
+  });
 });
+
+// HEADER TON CONNECT BUTTON
+$("ton-header-button")?.addEventListener("click", async () => {
+  const button = $("ton-header-button");
+
+  const ui = initializeTonConnect();
+
+  if (!ui) {
+    notice("TON Connect could not be loaded. Please refresh the app.");
+    return;
+  }
+
+  try {
+    if (state.tonWallet || ui.wallet) {
+      button.disabled = true;
+
+      await ui.disconnect();
+
+      state.tonWallet = null;
+      updateHeaderWalletButton();
+
+      notice("TON wallet disconnected.");
+
+    } else {
+      await ui.openModal();
+    }
+
+  } catch (error) {
+    console.error("TON wallet action failed:", error);
+    notice(error.message || "Unable to connect TON wallet.");
+
+  } finally {
+    button.disabled = false;
+    updateHeaderWalletButton();
+  }
 });
 
 // DAILY REWARD BUTTON
 $("checkin-btn").addEventListener("click", async () => {
-$("checkin-btn").disabled = true;
-notice("Processing your daily reward…");
+  $("checkin-btn").disabled = true;
+  notice("Processing your daily reward…");
 
-try {
-const data = await api("/api/checkin");
+  try {
+    const data = await api("/api/checkin");
 
-setBalance(data.balance);
+    setBalance(data.balance);
 
-if (state.user) {
-state.user.balance = data.balance;
-}
+    if (state.user) {
+      state.user.balance = data.balance;
+    }
 
-setCheckin(
-false,
-0,
-"Your daily reward has been added."
-);
+    setCheckin(
+      false,
+      0,
+      "Your daily reward has been added."
+    );
 
-let message =
-`+${fmt(data.reward)} ZYRO added to your balance.`;
+    let message =
+      `+${fmt(data.reward)} ZYRO added to your balance.`;
 
-if (Number(data.referral_reward) > 0) {
-message += " Your inviter received 100 ZYRO!";
-}
+    if (Number(data.referral_reward) > 0) {
+      message += " Your inviter received 100 ZYRO!";
+    }
 
-notice(message);
+    notice(message);
 
-} catch (error) {
-notice(error.message);
-$("checkin-btn").disabled = false;
-}
+  } catch (error) {
+    notice(error.message);
+    $("checkin-btn").disabled = false;
+  }
 });
 
 // INITIALIZE APP
 async function boot() {
-if (!initData) {
-$("greeting").textContent =
-"Open ZYRO in Telegram";
+  updateHeaderWalletButton();
 
-setCheckin(
-false,
-0,
-"Please launch this app from @zyrominiappbot in Telegram."
-);
+  // Restore an existing TON wallet connection
+  initializeTonConnect();
 
-notice("Telegram authentication is required.");
-return;
-}
+  if (!initData) {
+    $("greeting").textContent =
+      "Open ZYRO in Telegram";
 
-try {
-const data = await api("/api/me", {
-startParam
-});
+    setCheckin(
+      false,
+      0,
+      "Please launch this app from @zyrominiappbot in Telegram."
+    );
 
-setUser(data.user);
+    notice("Telegram authentication is required.");
+    return;
+  }
 
-state.tasks = data.tasks || [];
-state.referralCount = data.referralCount || 0;
+  try {
+    const data = await api("/api/me", {
+      startParam
+    });
 
-setCheckin(
-data.canClaimDaily,
-data.dailyReward,
-data.canClaimDaily
-? "Your daily reward is ready."
-: "You have already checked in today."
-);
+    setUser(data.user);
 
-activate("home");
+    state.tasks = data.tasks || [];
+    state.referralCount = data.referralCount || 0;
 
-} catch (error) {
-notice(error.message);
+    setCheckin(
+      data.canClaimDaily,
+      data.dailyReward,
+      data.canClaimDaily
+        ? "Your daily reward is ready."
+        : "You have already checked in today."
+    );
 
-$("greeting").textContent =
-"Unable to load your account";
+    activate("home");
 
-setCheckin(
-false,
-0,
-"Please try again later."
-);
-}
+  } catch (error) {
+    notice(error.message);
+
+    $("greeting").textContent =
+      "Unable to load your account";
+
+    setCheckin(
+      false,
+      0,
+      "Please try again later."
+    );
+  }
 }
 
 // START APP AND HIDE SPLASH
 boot();
 
 setTimeout(() => {
-$("zyro-splash")?.classList.add("hide");
+  $("zyro-splash")?.classList.add("hide");
 }, 2000);
 
 })();
