@@ -12,11 +12,17 @@ const $ = (id) => document.getElementById(id);
 
 const BOT_USERNAME = "zyrominiappbot";
 
+const TON_MANIFEST =
+"https://zyro-miniapp.vercel.app/tonconnect-manifest.json";
+
 const state = {
 user: null,
 tasks: [],
 view: "home",
-referralCount: 0
+referralCount: 0,
+tonWallet: null,
+tonUI: null,
+tonInitStarted: false
 };
 
 const initData = tg?.initData || "";
@@ -549,6 +555,220 @@ box.append(message);
 }
 }
 
+// TON CONNECT: INITIALIZE ONCE
+function initializeTonConnect() {
+if (state.tonUI) {
+return state.tonUI;
+}
+
+if (state.tonInitStarted) {
+return null;
+}
+
+state.tonInitStarted = true;
+
+const tonLibrary = window.TON_CONNECT_UI;
+
+if (!tonLibrary?.TonConnectUI) {
+console.error("TON Connect library is not available.");
+return null;
+}
+
+try {
+state.tonUI = new tonLibrary.TonConnectUI({
+manifestUrl: TON_MANIFEST,
+uiPreferences: {
+theme: "DARK",
+borderRadius: "m"
+}
+});
+
+state.tonUI.onStatusChange(
+(wallet) => {
+state.tonWallet = wallet || null;
+
+updateTonWalletPanel();
+},
+(error) => {
+console.error("TON Connect error:", error);
+notice("TON wallet connection error. Please try again.");
+}
+);
+
+state.tonUI.connectionRestored
+.then(() => {
+state.tonWallet = state.tonUI?.wallet || null;
+updateTonWalletPanel();
+})
+.catch((error) => {
+console.error("TON connection restore error:", error);
+});
+
+return state.tonUI;
+
+} catch (error) {
+console.error("TON Connect initialization failed:", error);
+return null;
+}
+}
+
+// SHORTEN WALLET ADDRESS
+function shortenAddress(address) {
+if (!address) return "";
+
+if (address.length < 20) {
+return address;
+}
+
+return (
+address.substring(0, 8) +
+"..." +
+address.substring(address.length - 8)
+);
+}
+
+// TON WALLET PANEL
+function renderTonWalletPanel(box) {
+const section = document.createElement("div");
+section.id = "ton-wallet-section";
+
+const heading = document.createElement("h3");
+heading.textContent = "TON Wallet";
+
+section.append(heading);
+
+const description = document.createElement("p");
+description.className = "empty";
+description.textContent =
+"Connect your TON wallet securely with TON Connect.";
+
+section.append(description);
+
+const status = document.createElement("div");
+status.id = "ton-wallet-status";
+status.className = "profile-info";
+status.textContent = "Checking wallet connection…";
+
+section.append(status);
+
+const address = document.createElement("div");
+address.id = "ton-wallet-address";
+address.className = "profile-info";
+address.style.display = "none";
+
+section.append(address);
+
+const button = document.createElement("button");
+button.id = "ton-wallet-button";
+button.className = "primary-btn";
+button.style.width = "100%";
+button.style.marginTop = "12px";
+button.textContent = "Connect TON Wallet";
+
+button.onclick = async () => {
+const ui = initializeTonConnect();
+
+if (!ui) {
+notice("TON Connect could not be loaded. Please refresh the app.");
+return;
+}
+
+try {
+if (state.tonWallet) {
+button.disabled = true;
+button.textContent = "Disconnecting…";
+
+await ui.disconnect();
+
+state.tonWallet = null;
+updateTonWalletPanel();
+
+notice("TON wallet disconnected.");
+
+} else {
+button.disabled = true;
+button.textContent = "Opening wallets…";
+
+await ui.openModal();
+}
+
+} catch (error) {
+console.error("TON wallet action failed:", error);
+notice(error.message || "Unable to connect TON wallet.");
+} finally {
+button.disabled = false;
+updateTonWalletPanel();
+}
+};
+
+section.append(button);
+box.append(section);
+
+initializeTonConnect();
+updateTonWalletPanel();
+}
+
+// UPDATE TON WALLET PANEL
+function updateTonWalletPanel() {
+if (state.view !== "profile") return;
+
+const status = $("ton-wallet-status");
+const addressBox = $("ton-wallet-address");
+const button = $("ton-wallet-button");
+
+if (!status || !button) return;
+
+const wallet =
+state.tonWallet ||
+state.tonUI?.wallet ||
+null;
+
+if (wallet?.account?.address) {
+const fullAddress = wallet.account.address;
+
+status.textContent = "Wallet connected ✓";
+
+addressBox.style.display = "flex";
+addressBox.style.flexDirection = "column";
+addressBox.style.gap = "6px";
+
+addressBox.innerHTML = "";
+
+const label = document.createElement("span");
+label.textContent = "Connected address";
+
+const value = document.createElement("strong");
+value.textContent = shortenAddress(fullAddress);
+value.title = fullAddress;
+value.style.wordBreak = "break-all";
+
+const copyButton = document.createElement("button");
+copyButton.className = "row-action";
+copyButton.textContent = "Copy address";
+
+copyButton.onclick = async () => {
+try {
+await navigator.clipboard.writeText(fullAddress);
+notice("TON wallet address copied!");
+} catch (_) {
+notice("Unable to copy address.");
+}
+};
+
+addressBox.append(label, value, copyButton);
+
+button.textContent = "Disconnect Wallet";
+
+} else {
+status.textContent = "No TON wallet connected.";
+
+addressBox.style.display = "none";
+addressBox.innerHTML = "";
+
+button.textContent = "Connect TON Wallet";
+}
+}
+
 // PROFILE PAGE
 function renderProfile() {
 const box = $("content-view");
@@ -600,6 +820,9 @@ referral.querySelector("strong").textContent =
 state.referralCount;
 
 box.append(referral);
+
+// TON CONNECT WALLET
+renderTonWalletPanel(box);
 }
 
 // NAVIGATION BUTTONS
