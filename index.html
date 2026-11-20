@@ -1,13 +1,18 @@
 <!doctype html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <meta name="theme-color" content="#080b12">
   <meta name="description" content="ZYRO Telegram community">
-  <title>ZYRO</title>  <link rel="icon" type="image/png" href="/assets/zyro-logo.png?v=20261120">
-  <link rel="stylesheet" href="/styles.css?v=20261120-6">  <script src="https://telegram.org/js/telegram-web-app.js"></script>  <style>
+  <title>ZYRO</title>
+
+  <link rel="icon" type="image/png" href="/assets/zyro-logo.png?v=20261120">
+  <link rel="stylesheet" href="/styles.css?v=20261120-6">
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
     .hero-mark,
     .hero > img {
       display: none !important;
@@ -15,121 +20,130 @@
       width: 0 !important;
       height: 0 !important;
     }
-  </style></head><body>  <!-- ZYRO SPLASH SCREEN -->  <div id="zyro-splash">
+  </style>
+</head>
+
+<body>
+
+  <!-- ZYRO SPLASH SCREEN -->
+  <div id="zyro-splash">
     <img
       src="/assets/zyro-logo.png"
       class="splash-logo"
       alt="ZYRO"
-    ><div class="splash-title">ZYRO</div>
-<div class="splash-subtitle">WELCOME TO ZYRO</div>
-<div class="splash-loader"></div>
-
-  </div>  <div class="app-shell"><header class="topbar">
-  <div class="brand">
-    <img src="/assets/zyro-logo.png" alt="ZYRO">
-    <span>ZYRO</span>
+    >
+    <div class="splash-title">ZYRO</div>
+    <div class="splash-subtitle">WELCOME TO ZYRO</div>
+    <div class="splash-loader"></div>
   </div>
 
-  <div class="network-pill">
-    <i></i> COMMUNITY
-  </div>
-</header>
+  <div class="app-shell">
 
-<main>
-
-  <div id="home-view" class="page-view">
-
-    <section class="hero panel">
-      <div class="hero-copy">
-        <div class="eyebrow">WELCOME TO ZYRO</div>
-        <h1 id="greeting">Welcome to ZYRO</h1>
-        <p>Your community. Your rewards.</p>
-      </div>
-    </section>
-
-    <section class="balance-card panel">
-      <div class="balance-head">
-        <span>YOUR BALANCE</span>
-        <span class="live-tag"><i></i> IN-APP</span>
-      </div>
-
-      <div class="balance-value">
-        <strong id="balance">0.00</strong>
+    <header class="topbar">
+      <div class="brand">
+        <img src="/assets/zyro-logo.png" alt="ZYRO">
         <span>ZYRO</span>
       </div>
 
-      <div class="balance-foot">
-        Your balance in the ZYRO app
+      <div class="network-pill">
+        <i></i> COMMUNITY
       </div>
-    </section>
+    </header>
 
-    <section class="section">
-      <div class="section-heading">
-        <div>
-          <span class="eyebrow">DAILY REWARD</span>
-          <h2>Daily Check-in</h2>
-        </div>
+    <main>
 
-        <span class="day-badge">24H</span>
+      <div id="home-view" class="page-view">
+
+        <section class="hero panel">
+          <div class="hero-copy">
+            <div class="eyebrow">WELCOME TO ZYRO</div>
+            <h1 id="greeting">Welcome to ZYRO</h1>
+            <p>Your community. Your rewards.</p>
+          </div>
+        </section>
+
+        <section class="balance-card panel">
+          <div class="balance-head">
+            <span>YOUR BALANCE</span>
+            <span class="live-tag"><i></i> IN-APP</span>
+          </div>
+
+          <div class="balance-value">
+            <strong id="balance">0.00</strong>
+            <span>ZYRO</span>
+          </div>
+
+          <div class="balance-foot">
+            Your balance in the ZYRO app
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">DAILY REWARD</span>
+              <h2>Daily Check-in</h2>
+            </div>
+
+            <span class="day-badge">24H</span>
+          </div>
+
+          <div class="checkin-card panel">
+            <div>
+              <strong>Come back every day</strong>
+              <p id="checkin-copy">Claim your daily ZYRO reward.</p>
+            </div>
+
+            <button id="checkin-btn" class="primary-btn" disabled>
+              Loading…
+            </button>
+          </div>
+        </section>
+
       </div>
 
-      <div class="checkin-card panel">
-        <div>
-          <strong>Come back every day</strong>
-          <p id="checkin-copy">Claim your daily ZYRO reward.</p>
-        </div>
+      <section
+        id="content-view"
+        class="section content-view panel"
+        hidden>
+      </section>
 
-        <button id="checkin-btn" class="primary-btn" disabled>
-          Loading…
-        </button>
-      </div>
-    </section>
+      <div id="notice" class="notice" role="status" aria-live="polite"></div>
 
-    <div class="footnote">
-      ZYRO balances are internal app records.
-      Blockchain transfers and withdrawals are not available yet.
-    </div>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Main navigation">
+
+      <button class="nav-item active" data-view="home">
+        <span>⌂</span>
+        Home
+      </button>
+
+      <button class="nav-item" data-view="tasks">
+        <span>✦</span>
+        Tasks
+      </button>
+
+      <button class="nav-item" data-view="friends">
+        <span>♧</span>
+        Friends
+      </button>
+
+      <button class="nav-item" data-view="leaderboard">
+        <span>↗</span>
+        Ranks
+      </button>
+
+      <button class="nav-item" data-view="profile">
+        <span>◉</span>
+        Profile
+      </button>
+
+    </nav>
 
   </div>
 
-  <section
-    id="content-view"
-    class="section content-view panel"
-    hidden>
-  </section>
+  <script src="/app.js?v=20261120-7"></script>
 
-  <div id="notice" class="notice" role="status" aria-live="polite"></div>
-
-</main>
-
-<nav class="bottom-nav" aria-label="Main navigation">
-
-  <button class="nav-item active" data-view="home">
-    <span>⌂</span>
-    Home
-  </button>
-
-  <button class="nav-item" data-view="tasks">
-    <span>✦</span>
-    Tasks
-  </button>
-
-  <button class="nav-item" data-view="friends">
-    <span>♧</span>
-    Friends
-  </button>
-
-  <button class="nav-item" data-view="leaderboard">
-    <span>↗</span>
-    Ranks
-  </button>
-
-  <button class="nav-item" data-view="profile">
-    <span>◉</span>
-    Profile
-  </button>
-
-</nav>
-
-  </div>  <script src="/app.js?v=20261120-6"></script></body>
+</body>
 </html>
