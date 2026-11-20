@@ -8,7 +8,8 @@
   <meta name="description" content="ZYRO Telegram community">
   <title>ZYRO</title>  <link rel="icon" type="image/png" href="/assets/zyro-logo.png?v=20261120">
   <link rel="stylesheet" href="/styles.css?v=20261120">  <script src="/vendor/telegram-web-app.js"></script></head><body>
-  <div class="app-shell"><header class="topbar">
+  <div class="app-shell"><!-- HEADER -->
+<header class="topbar">
   <div class="brand">
     <img src="/assets/zyro-logo.png" alt="ZYRO">
     <span>ZYRO</span>
@@ -21,6 +22,7 @@
 
 <main>
 
+  <!-- HOME PAGE -->
   <div id="home-view" class="page-view">
 
     <section class="hero panel">
@@ -29,10 +31,9 @@
         <h1 id="greeting">Welcome to ZYRO</h1>
         <p>Your community. Your rewards.</p>
       </div>
-
-      <img class="hero-mark" src="/assets/zyro-logo.png" alt="">
     </section>
 
+    <!-- BALANCE -->
     <section class="balance-card panel">
       <div class="balance-head">
         <span>YOUR BALANCE</span>
@@ -49,6 +50,7 @@
       </div>
     </section>
 
+    <!-- DAILY REWARD -->
     <section class="section">
       <div class="section-heading">
         <div>
@@ -77,16 +79,19 @@
 
   </div>
 
+  <!-- OTHER PAGES -->
   <section
     id="content-view"
     class="section content-view panel"
     hidden>
   </section>
 
+  <!-- NOTIFICATIONS -->
   <div id="notice" class="notice" role="status" aria-live="polite"></div>
 
 </main>
 
+<!-- BOTTOM NAVIGATION -->
 <nav class="bottom-nav" aria-label="Main navigation">
 
   <button class="nav-item active" data-view="home">
@@ -116,5 +121,5 @@
 
 </nav>
 
-  </div>  <script src="/app.js?v=20261120-2"></script></body>
+  </div>  <script src="/app.js?v=20261120-3"></script></body>
 </html>
