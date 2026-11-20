@@ -10,6 +10,8 @@ tg?.setBackgroundColor?.("#080b12");
 
 const $ = (id) => document.getElementById(id);
 
+const BOT_USERNAME = "zyrominiappbot";
+
 const state = {
 user: null,
 tasks: [],
@@ -178,7 +180,6 @@ if (!state.tasks.length) {
     "beforeend",
     '<div class="empty">There are no active tasks yet. Please check back later.</div>'
   );
-
   return;
 }
 
@@ -221,7 +222,6 @@ state.tasks.forEach((task) => {
 
       btn.textContent = "Verify membership";
       notice("Join the channel, then tap Verify membership.");
-
       return;
     }
 
@@ -273,7 +273,7 @@ const box = $("content-view");
 box.innerHTML = "<h3>Invite Friends</h3>";
 
 const link = state.user?.referral_code
-  ? `https://t.me/zyrobot?startapp=ref_${state.user.referral_code}`
+  ? `https://t.me/${BOT_USERNAME}?startapp=ref_${state.user.referral_code}`
   : "";
 
 const description = document.createElement("p");
@@ -335,6 +335,7 @@ btn.onclick = async () => {
     input.value = link;
     input.style.position = "fixed";
     input.style.opacity = "0";
+
     document.body.appendChild(input);
     input.select();
 
@@ -346,6 +347,7 @@ btn.onclick = async () => {
         ? "Invite link copied!"
         : "Please copy your invite link manually."
     );
+
   } catch (error) {
     if (error.name === "AbortError") return;
 
@@ -400,7 +402,6 @@ try {
       "beforeend",
       '<div class="empty">No members yet.</div>'
     );
-
     return;
   }
 
@@ -424,6 +425,7 @@ try {
 
     box.append(row);
   });
+
 } catch (error) {
   box.innerHTML = "<h3>Leaderboard</h3>";
 
@@ -533,6 +535,7 @@ try {
   }
 
   notice(message);
+
 } catch (error) {
   notice(error.message);
   $("checkin-btn").disabled = false;
@@ -549,7 +552,7 @@ $("greeting").textContent =
   setCheckin(
     false,
     0,
-    "Please launch this app from @zyrobot in Telegram."
+    "Please launch this app from @zyrominiappbot in Telegram."
   );
 
   notice("Telegram authentication is required.");
@@ -575,6 +578,7 @@ try {
   );
 
   activate("home");
+
 } catch (error) {
   notice(error.message);
 
