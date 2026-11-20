@@ -280,6 +280,7 @@ const description = document.createElement("p");
 description.className = "empty";
 description.textContent =
   "Invite your friends and grow the ZYRO community.";
+
 box.append(description);
 
 const row = document.createElement("div");
@@ -594,5 +595,11 @@ try {
 
 }
 
+// START APP AND HIDE SPLASH
 boot();
-})();
+
+setTimeout(() => {
+$("zyro-splash")?.classList.add("hide");
+}, 2000);
+
+})()
