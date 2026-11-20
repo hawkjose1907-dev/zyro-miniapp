@@ -427,8 +427,9 @@ else medal.textContent = `#${rank}`;
 row.querySelector(".rank-user div strong").textContent =
 member.first_name || "ZYRO member";
 
+// İlk üçte alt yazı yok
 row.querySelector(".rank-user div small").textContent =
-rank <= 3 ? `TOP ${rank}` : `Rank #${rank}`;
+rank <= 3 ? "" : `Rank #${rank}`;
 
 row.querySelector(".rank-balance").textContent =
 `${fmt(member.balance)} ZYRO`;
