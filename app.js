@@ -427,7 +427,6 @@ else medal.textContent = `#${rank}`;
 row.querySelector(".rank-user div strong").textContent =
 member.first_name || "ZYRO member";
 
-// İlk üçte alt yazı yok
 row.querySelector(".rank-user div small").textContent =
 rank <= 3 ? "" : `Rank #${rank}`;
 
@@ -499,14 +498,6 @@ referral.querySelector("strong").textContent =
 state.referralCount;
 
 box.append(referral);
-
-const note = document.createElement("div");
-note.className = "empty";
-
-note.textContent =
-"Your ZYRO balance is an internal app record. No blockchain transfers or withdrawals are available in this version.";
-
-box.append(note);
 }
 
 // NAVIGATION BUTTONS
