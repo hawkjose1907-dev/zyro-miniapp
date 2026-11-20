@@ -505,6 +505,86 @@ text-align: right;
 overflow-wrap: anywhere;
 }
 
+/* TON WALLET SEPARATE CARD */
+
+#ton-wallet-section {
+position: relative;
+margin-top: 28px;
+padding: 20px 17px;
+border: 1px solid rgba(98, 130, 255, .32);
+border-radius: 17px;
+background:
+radial-gradient(ellipse at 100% 0%, rgba(71, 124, 255, .13), transparent 55%),
+linear-gradient(145deg, #141e31, #101622);
+box-shadow:
+0 10px 28px rgba(0, 0, 0, .2),
+inset 0 1px 0 rgba(255, 255, 255, .025);
+}
+
+#ton-wallet-section::before {
+content: "";
+position: absolute;
+top: 0;
+left: 17px;
+right: 17px;
+height: 2px;
+border-radius: 0 0 5px 5px;
+background: linear-gradient(90deg, var(--blue), var(--cyan), var(--purple));
+}
+
+#ton-wallet-section h3 {
+margin: 2px 0 7px;
+font-size: 17px;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+#ton-wallet-section h3::before {
+content: "◈";
+color: var(--cyan);
+font-size: 20px;
+}
+
+#ton-wallet-section > .empty {
+padding: 5px 0 15px;
+font-size: 11px;
+}
+
+#ton-wallet-section .profile-info {
+margin-top: 8px;
+padding: 13px;
+border: 1px solid rgba(98, 130, 255, .16);
+border-radius: 10px;
+background: rgba(8, 13, 23, .55);
+}
+
+#ton-wallet-section #ton-wallet-address {
+margin-top: 10px;
+}
+
+#ton-wallet-section #ton-wallet-address strong {
+color: var(--cyan);
+font-size: 12px;
+}
+
+#ton-wallet-section #ton-wallet-button {
+width: 100%;
+margin-top: 15px;
+min-height: 46px;
+font-size: 12px;
+letter-spacing: .2px;
+}
+
+#ton-wallet-section #ton-wallet-button:not(:disabled) {
+background: linear-gradient(100deg, #347ff5, #795cf5);
+box-shadow: 0 5px 20px rgba(71, 124, 255, .22);
+}
+
+#ton-wallet-section #ton-wallet-button:active {
+transform: scale(.98);
+}
+
 /* NOTICE AND FOOTNOTE */
 
 .notice {
@@ -603,6 +683,11 @@ font-size: 11px;
 
 .content-view {
 padding: 15px;
+}
+
+#ton-wallet-section {
+margin-top: 24px;
+padding: 18px 14px;
 }
 
 .nav-item {
