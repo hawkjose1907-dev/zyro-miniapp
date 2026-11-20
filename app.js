@@ -163,20 +163,21 @@ behavior: "smooth"
 });
 }
 
-// TELEGRAM OFFICIAL-STYLE SVG ICON
+// TELEGRAM ICON
 const telegramIcon = `
-<svg
-  viewBox="0 0 48 48"
-  width="38"
-  height="38"
-  xmlns="http://www.w3.org/2000/svg"
-  aria-hidden="true"
->
-  <circle cx="24" cy="24" r="24" fill="#229ED9"/>
-  <path
-    d="M36.8 13.1 32.4 34c-.3 1.5-1.2 1.9-2.4 1.2l-7-5.2-3.4 3.3c-.4.4-.7.7-1.4.7l.5-7.1 13-11.7c.6-.5-.1-.8-.9-.3L14.7 25.1l-6.9-2.2c-1.5-.5-1.5-1.5.3-2.2l27-10.4c1.2-.4 2.2.3 1.7 2.8Z"
-    fill="#FFFFFF"
-  />
+<svg viewBox="0 0 48 48" width="38" height="38"
+xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<circle cx="24" cy="24" r="24" fill="#229ED9"/>
+<path d="M36.8 13.1 32.4 34c-.3 1.5-1.2 1.9-2.4 1.2l-7-5.2-3.4 3.3c-.4.4-.7.7-1.4.7l.5-7.1 13-11.7c.6-.5-.1-.8-.9-.3L14.7 25.1l-6.9-2.2c-1.5-.5-1.5-1.5.3-2.2l27-10.4c1.2-.4 2.2.3 1.7 2.8Z" fill="#FFFFFF"/>
+</svg>
+`;
+
+// X ICON
+const xIcon = `
+<svg viewBox="0 0 48 48" width="38" height="38"
+xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+<rect width="48" height="48" rx="12" fill="#000000"/>
+<path d="M27.4 21.8 38.1 9h-3.8l-8.6 10.3L18.8 9H8l11.2 16.3L8 39h3.8l9.2-11 7.7 11H40L27.4 21.8Zm-4.1 4.9-1.1-1.6-8.5-12.1h3.4l6.8 9.7 1.1 1.6 8.9 12.7h-3.4l-7.2-10.3Z" fill="#FFFFFF"/>
 </svg>
 `;
 
@@ -200,13 +201,21 @@ row.className = "list-row";
 
 const info = document.createElement("div");
 
-if (task.task_type === "telegram_join") {
+if (
+task.task_type === "telegram_join" ||
+task.task_type === "x_follow"
+) {
 info.style.display = "flex";
 info.style.alignItems = "center";
 info.style.gap = "12px";
 
 const icon = document.createElement("div");
-icon.innerHTML = telegramIcon;
+
+icon.innerHTML =
+task.task_type === "telegram_join"
+? telegramIcon
+: xIcon;
+
 icon.style.width = "38px";
 icon.style.height = "38px";
 icon.style.flexShrink = "0";
@@ -231,21 +240,30 @@ info.querySelector("small").textContent =
 const btn = document.createElement("button");
 btn.className = "row-action";
 
-btn.textContent = task.completed
-? "Completed"
-: task.task_type === "telegram_join"
-? "Open channel"
-: "Open task";
-
-btn.disabled = !!task.completed;
-
 let opened = false;
 
+if (task.completed) {
+btn.textContent = "Completed ✓";
+btn.disabled = true;
+
+} else if (task.task_type === "telegram_join") {
+btn.textContent = "Open channel";
+
+} else if (task.task_type === "x_follow") {
+btn.textContent = "Follow on X";
+
+} else {
+btn.textContent = "Open task";
+}
+
 btn.onclick = async () => {
-if (
-task.task_type === "telegram_join" &&
-!opened
-) {
+
+if (task.completed) return;
+
+// TELEGRAM TASK
+if (task.task_type === "telegram_join") {
+
+if (!opened) {
 if (!task.task_url) {
 notice("Channel link is missing.");
 return;
@@ -259,7 +277,6 @@ notice("Join the channel, then tap Verify membership.");
 return;
 }
 
-if (task.task_type === "telegram_join") {
 btn.disabled = true;
 btn.textContent = "Checking…";
 
@@ -275,9 +292,10 @@ state.user.balance = result.balance;
 }
 
 task.completed = true;
-btn.textContent = "Completed";
+btn.textContent = "Completed ✓";
 
 notice(`+${fmt(result.reward)} ZYRO added.`);
+
 } catch (error) {
 btn.disabled = false;
 btn.textContent = "Verify membership";
@@ -287,11 +305,55 @@ notice(error.message);
 return;
 }
 
+// X TASK
+if (task.task_type === "x_follow") {
+
+if (!opened) {
+openTaskLink(task.task_url);
+
+opened = true;
+btn.textContent = "Claim 100 ZYRO";
+
+notice("You can now claim your X task reward.");
+return;
+}
+
+btn.disabled = true;
+btn.textContent = "Claiming…";
+
+try {
+const result = await api("/api/complete-task", {
+taskId: task.id
+});
+
+setBalance(result.balance);
+
+if (state.user) {
+state.user.balance = result.balance;
+}
+
+task.completed = true;
+
+btn.textContent = "Completed ✓";
+
+notice(`+${fmt(result.reward)} ZYRO added to your balance.`);
+
+} catch (error) {
+btn.disabled = false;
+btn.textContent = "Claim 100 ZYRO";
+notice(error.message);
+}
+
+return;
+}
+
+// OTHER TASKS
 if (task.task_url) {
 openTaskLink(task.task_url);
 } else {
 notice("Task link is not available.");
 }
+
 };
 
 row.append(info, btn);
@@ -417,7 +479,7 @@ rewardInfo.textContent =
 box.append(rewardInfo);
 }
 
-// LEADERBOARD PAGE - TOP 100
+// LEADERBOARD PAGE
 async function renderLeaderboard() {
 const box = $("content-view");
 
