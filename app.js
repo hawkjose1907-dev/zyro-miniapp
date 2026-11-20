@@ -377,20 +377,22 @@ rewardInfo.textContent =
 box.append(rewardInfo);
 }
 
-// LEADERBOARD PAGE
+// LEADERBOARD PAGE - TOP 100
 async function renderLeaderboard() {
 const box = $("content-view");
 
 box.innerHTML =
-"<h3>Leaderboard</h3>" +
-'<div class="empty">Loading members…</div>';
+"<h3>🏆 Top 100 ZYRO</h3>" +
+'<div class="empty">Loading rankings…</div>';
 
 try {
 const data = await api("/api/leaderboard");
 
-box.innerHTML = "<h3>Leaderboard</h3>";
+box.innerHTML = "<h3>🏆 Top 100 ZYRO</h3>";
 
-if (!data.members?.length) {
+const members = (data.members || []).slice(0, 100);
+
+if (!members.length) {
 box.insertAdjacentHTML(
 "beforeend",
 '<div class="empty">No members yet.</div>'
@@ -398,28 +400,44 @@ box.insertAdjacentHTML(
 return;
 }
 
-data.members.forEach((member, index) => {
+members.forEach((member, index) => {
+const rank = index + 1;
+
 const row = document.createElement("div");
 row.className = "list-row";
 
-row.innerHTML =
-"<div><strong></strong><small></small></div><strong></strong>";
+if (rank <= 3) {
+row.classList.add("top-rank");
+}
 
-// Kullanıcı adı yerine görünen isim
-row.querySelector("div strong").textContent =
+row.innerHTML =
+'<div class="rank-user">' +
+'<span class="rank-medal"></span>' +
+'<div><strong></strong><small></small></div>' +
+'</div>' +
+'<strong class="rank-balance"></strong>';
+
+const medal = row.querySelector(".rank-medal");
+
+if (rank === 1) medal.textContent = "🥇";
+else if (rank === 2) medal.textContent = "🥈";
+else if (rank === 3) medal.textContent = "🥉";
+else medal.textContent = `#${rank}`;
+
+row.querySelector(".rank-user div strong").textContent =
 member.first_name || "ZYRO member";
 
-row.querySelector("small").textContent =
-`Rank #${index + 1}`;
+row.querySelector(".rank-user div small").textContent =
+rank <= 3 ? `TOP ${rank}` : `Rank #${rank}`;
 
-row.lastElementChild.textContent =
+row.querySelector(".rank-balance").textContent =
 `${fmt(member.balance)} ZYRO`;
 
 box.append(row);
 });
 
 } catch (error) {
-box.innerHTML = "<h3>Leaderboard</h3>";
+box.innerHTML = "<h3>🏆 Top 100 ZYRO</h3>";
 
 const message = document.createElement("div");
 message.className = "empty";
