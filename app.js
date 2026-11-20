@@ -25,7 +25,8 @@ new URLSearchParams(location.search).get("ref") ||
 "";
 
 const notice = (msg) => {
-$("notice").textContent = msg || "";
+const el = $("notice");
+if (el) el.textContent = msg || "";
 };
 
 const fmt = (n) =>
@@ -132,7 +133,6 @@ state.view = view;
 const home = $("home-view");
 const box = $("content-view");
 
-// Active navigation button
 document.querySelectorAll(".nav-item").forEach((button) => {
   button.classList.toggle(
     "active",
@@ -140,7 +140,6 @@ document.querySelectorAll(".nav-item").forEach((button) => {
   );
 });
 
-// HOME PAGE
 if (view === "home") {
   home.hidden = false;
   box.hidden = true;
@@ -153,25 +152,13 @@ if (view === "home") {
   return;
 }
 
-// OTHER PAGES
 home.hidden = true;
 box.hidden = false;
 
-if (view === "tasks") {
-  renderTasks();
-}
-
-if (view === "friends") {
-  renderFriends();
-}
-
-if (view === "leaderboard") {
-  renderLeaderboard();
-}
-
-if (view === "profile") {
-  renderProfile();
-}
+if (view === "tasks") renderTasks();
+if (view === "friends") renderFriends();
+if (view === "leaderboard") renderLeaderboard();
+if (view === "profile") renderProfile();
 
 window.scrollTo({
   top: 0,
@@ -200,17 +187,13 @@ state.tasks.forEach((task) => {
   row.className = "list-row";
 
   const info = document.createElement("div");
-
   info.innerHTML = "<strong></strong><small></small>";
 
-  info.querySelector("strong").textContent =
-    task.title;
-
+  info.querySelector("strong").textContent = task.title;
   info.querySelector("small").textContent =
     `Reward: ${fmt(task.reward)} ZYRO`;
 
   const btn = document.createElement("button");
-
   btn.className = "row-action";
 
   btn.textContent = task.completed
@@ -224,8 +207,6 @@ state.tasks.forEach((task) => {
   let opened = false;
 
   btn.onclick = async () => {
-
-    // OPEN TELEGRAM CHANNEL
     if (
       task.task_type === "telegram_join" &&
       !opened
@@ -236,53 +217,42 @@ state.tasks.forEach((task) => {
       }
 
       openTaskLink(task.task_url);
-
       opened = true;
 
       btn.textContent = "Verify membership";
-
-      notice(
-        "Join the channel, then tap Verify membership."
-      );
+      notice("Join the channel, then tap Verify membership.");
 
       return;
     }
 
-    // VERIFY TELEGRAM MEMBERSHIP
     if (task.task_type === "telegram_join") {
       btn.disabled = true;
       btn.textContent = "Checking…";
 
       try {
-        const result = await api(
-          "/api/complete-task",
-          {
-            taskId: task.id
-          }
-        );
+        const result = await api("/api/complete-task", {
+          taskId: task.id
+        });
 
         setBalance(result.balance);
 
-        task.completed = true;
+        if (state.user) {
+          state.user.balance = result.balance;
+        }
 
+        task.completed = true;
         btn.textContent = "Completed";
 
-        notice(
-          `+${fmt(result.reward)} ZYRO added.`
-        );
-
+        notice(`+${fmt(result.reward)} ZYRO added.`);
       } catch (error) {
         btn.disabled = false;
-
         btn.textContent = "Verify membership";
-
         notice(error.message);
       }
 
       return;
     }
 
-    // OTHER TASK LINKS
     if (task.task_url) {
       openTaskLink(task.task_url);
     } else {
@@ -291,7 +261,6 @@ state.tasks.forEach((task) => {
   };
 
   row.append(info, btn);
-
   box.append(row);
 });
 
@@ -308,61 +277,91 @@ const link = state.user?.referral_code
   : "";
 
 const description = document.createElement("p");
-
 description.className = "empty";
-
 description.textContent =
   "Invite your friends and grow the ZYRO community.";
-
 box.append(description);
 
-// INVITE LINK
 const row = document.createElement("div");
-
 row.className = "list-row";
 
 const info = document.createElement("div");
-
-info.innerHTML =
-  "<strong>Your invite link</strong><small></small>";
+info.innerHTML = "<strong>Your invite link</strong><small></small>";
 
 info.querySelector("small").textContent =
   link || "Not available";
 
 const btn = document.createElement("button");
-
 btn.className = "row-action";
-
 btn.textContent = "Share";
 
-btn.onclick = () => {
+btn.onclick = async () => {
   if (!link) {
     notice("Invite link is not available.");
     return;
   }
 
-  const share =
-    `https://t.me/share/url?url=${encodeURIComponent(link)}` +
-    `&text=${encodeURIComponent("Join me on ZYRO!")}`;
+  const text = "Join me on ZYRO! 🚀";
 
-  if (tg?.openTelegramLink) {
-    tg.openTelegramLink(share);
-  } else {
-    window.open(
-      share,
-      "_blank",
-      "noopener,noreferrer"
+  const shareUrl =
+    `https://t.me/share/url?url=${encodeURIComponent(link)}` +
+    `&text=${encodeURIComponent(text)}`;
+
+  try {
+    if (tg?.openTelegramLink) {
+      tg.openTelegramLink(shareUrl);
+      notice("Choose a Telegram chat to share ZYRO.");
+      return;
+    }
+
+    if (navigator.share) {
+      await navigator.share({
+        title: "Join ZYRO",
+        text,
+        url: link
+      });
+
+      notice("Share completed.");
+      return;
+    }
+
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(link);
+      notice("Invite link copied!");
+      return;
+    }
+
+    const input = document.createElement("textarea");
+    input.value = link;
+    input.style.position = "fixed";
+    input.style.opacity = "0";
+    document.body.appendChild(input);
+    input.select();
+
+    const copied = document.execCommand("copy");
+    input.remove();
+
+    notice(
+      copied
+        ? "Invite link copied!"
+        : "Please copy your invite link manually."
     );
+  } catch (error) {
+    if (error.name === "AbortError") return;
+
+    try {
+      await navigator.clipboard.writeText(link);
+      notice("Invite link copied!");
+    } catch (_) {
+      notice("Unable to share. Please copy your invite link.");
+    }
   }
 };
 
 row.append(info, btn);
-
 box.append(row);
 
-// REFERRAL COUNT
 const count = document.createElement("div");
-
 count.className = "profile-info";
 
 const label = document.createElement("span");
@@ -372,8 +371,14 @@ const value = document.createElement("strong");
 value.textContent = state.referralCount;
 
 count.append(label, value);
-
 box.append(count);
+
+const rewardInfo = document.createElement("div");
+rewardInfo.className = "empty";
+rewardInfo.textContent =
+  "Earn 100 ZYRO for every friend who completes their first daily check-in.";
+
+box.append(rewardInfo);
 
 }
 
@@ -401,7 +406,6 @@ try {
 
   data.members.forEach((member, index) => {
     const row = document.createElement("div");
-
     row.className = "list-row";
 
     row.innerHTML =
@@ -420,14 +424,11 @@ try {
 
     box.append(row);
   });
-
 } catch (error) {
   box.innerHTML = "<h3>Leaderboard</h3>";
 
   const message = document.createElement("div");
-
   message.className = "empty";
-
   message.textContent = error.message;
 
   box.append(message);
@@ -442,23 +443,18 @@ const box = $("content-view");
 box.innerHTML = "<h3>Your Profile</h3>";
 
 const row = document.createElement("div");
-
 row.className = "profile-line";
 
 if (state.user?.photo_url) {
   const img = document.createElement("img");
-
   img.className = "avatar";
-
   img.src = state.user.photo_url;
-
   img.alt = "Profile";
 
   row.append(img);
 }
 
 const txt = document.createElement("div");
-
 txt.innerHTML = "<strong></strong><small></small>";
 
 txt.querySelector("strong").textContent =
@@ -470,14 +466,10 @@ txt.querySelector("small").textContent =
     : "Telegram member";
 
 row.append(txt);
-
 box.append(row);
 
-// PROFILE INFORMATION
 const balance = document.createElement("div");
-
 balance.className = "profile-info";
-
 balance.innerHTML =
   "<span>ZYRO Balance</span><strong></strong>";
 
@@ -487,9 +479,7 @@ balance.querySelector("strong").textContent =
 box.append(balance);
 
 const referral = document.createElement("div");
-
 referral.className = "profile-info";
-
 referral.innerHTML =
   "<span>Successful invites</span><strong></strong>";
 
@@ -499,7 +489,6 @@ referral.querySelector("strong").textContent =
 box.append(referral);
 
 const note = document.createElement("div");
-
 note.className = "empty";
 
 note.textContent =
@@ -519,7 +508,6 @@ activate(button.dataset.view);
 // DAILY REWARD BUTTON
 $("checkin-btn").addEventListener("click", async () => {
 $("checkin-btn").disabled = true;
-
 notice("Processing your daily reward…");
 
 try {
@@ -537,13 +525,16 @@ try {
     "Your daily reward has been added."
   );
 
-  notice(
-    `+${fmt(data.reward)} ZYRO added to your balance.`
-  );
+  let message =
+    `+${fmt(data.reward)} ZYRO added to your balance.`;
 
+  if (Number(data.referral_reward) > 0) {
+    message += " Your inviter received 100 ZYRO!";
+  }
+
+  notice(message);
 } catch (error) {
   notice(error.message);
-
   $("checkin-btn").disabled = false;
 }
 
@@ -551,11 +542,9 @@ try {
 
 // INITIALIZE APP
 async function boot() {
-
-// NOT OPENED THROUGH TELEGRAM
 if (!initData) {
-  $("greeting").textContent =
-    "Open ZYRO in Telegram";
+$("greeting").textContent =
+"Open ZYRO in Telegram";
 
   setCheckin(
     false,
@@ -564,24 +553,18 @@ if (!initData) {
   );
 
   notice("Telegram authentication is required.");
-
   return;
 }
 
 try {
-  const data = await api(
-    "/api/me",
-    {
-      startParam
-    }
-  );
+  const data = await api("/api/me", {
+    startParam
+  });
 
   setUser(data.user);
 
   state.tasks = data.tasks || [];
-
-  state.referralCount =
-    data.referralCount || 0;
+  state.referralCount = data.referralCount || 0;
 
   setCheckin(
     data.canClaimDaily,
@@ -592,7 +575,6 @@ try {
   );
 
   activate("home");
-
 } catch (error) {
   notice(error.message);
 
@@ -609,5 +591,4 @@ try {
 }
 
 boot();
-
 })();
