@@ -1,15 +1,25 @@
-# ZYRO Mini App — initial frontend package
+# ZYRO Mini App — V1 foundation
 
-Brand: ZYRO  
-Telegram bot: @zyrobot
+- ZYRO-branded dark interface using the supplied ZYRO logo.
+- Telegram Mini App `initData` is validated server-side.
+- Supabase is accessed only from Vercel serverless functions using the service-role secret.
+- Daily check-in and Telegram channel task rewards use transactional SQL RPC functions.
+- Referral links and referral counts are tracked; referral rewards are intentionally not issued until their rule/amount is confirmed.
+- Telegram account creation date is not available from the standard Telegram Mini App user payload, so no unverified account-age claim is shown.
+- No mining, presale, blockchain transfer, wallet connection, or withdrawals in V1.
 
-This is a GitHub-ready static frontend adaptation based on the supplied WAG website mirror. Presale pages and old verification pages have been excluded. The ZYRO mascot logo is installed.
+## Setup
 
-## Important limitations
-- This package is a frontend snapshot, not a complete working backend. The supplied archive did not include the original WAG server/API/database implementation.
-- Telegram user authentication, account-age verification, rewards, tasks, referrals, and balance updates must be implemented and verified server-side before public launch.
-- No blockchain, token withdrawals, presale, or mining are included in the initial ZYRO scope. ZYRO balances are intended to be off-chain database records.
-- Review all remaining references and bundled application behavior before deployment.
+1. Keep the project root at the repository root in Vercel.
+2. Add these Vercel Environment Variables:
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY` (secret; server-side only)
+   - `TELEGRAM_BOT_TOKEN` (secret)
+   - `ZYRO_DAILY_REWARD` (set the amount after deciding the reward rule)
+3. Run `database.sql` in Supabase SQL Editor.
+4. Add Telegram channel tasks to `zyro_tasks` with `task_type = 'telegram_join'` and a public `task_url` such as `https://t.me/yourchannel`. The bot must be an administrator in the channel for reliable membership verification.
+5. Configure @zyrobot as a Telegram Mini App and set its URL to the Vercel deployment URL.
 
-## Deploy
-This is a static site. Import this repository into Vercel with the project root set to `/` and no build command; output directory `.`. Do not commit any Supabase secret/service-role key.
+## Notes
+
+This is an initial functional foundation, not a finished production launch. Test with a private Telegram bot and test accounts first. Do not publish the Supabase service-role key or Telegram bot token in frontend code or GitHub.

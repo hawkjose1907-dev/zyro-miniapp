@@ -1,0 +1,6 @@
+{
+  "name": "zyro-miniapp-v1",
+  "version": "1.0.0",
+  "private": true,
+  "engines": { "node": ">=20" }
+}
