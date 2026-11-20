@@ -136,6 +136,7 @@ height: 68px;
 display: flex;
 align-items: center;
 justify-content: space-between;
+gap: 10px;
 border-bottom: 1px solid rgba(130, 160, 200, .12);
 }
 
@@ -146,6 +147,7 @@ gap: 10px;
 font-size: 19px;
 font-weight: 900;
 letter-spacing: 2px;
+flex-shrink: 0;
 }
 
 .brand img {
@@ -154,17 +156,98 @@ height: 35px;
 object-fit: contain;
 }
 
-.network-pill,
-.live-tag {
+/* HEADER TON CONNECT BUTTON */
+
+.network-pill {
+appearance: none;
+-webkit-appearance: none;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 7px;
+min-width: 100px;
+max-width: 175px;
+min-height: 36px;
+padding: 8px 12px;
+border: 1px solid rgba(98, 130, 255, .48);
+border-radius: 30px;
+background:
+linear-gradient(110deg, rgba(71, 124, 255, .19), rgba(157, 120, 255, .18)),
+#111a2a;
+color: #dce9ff;
 font-size: 10px;
+font-weight: 900;
+letter-spacing: 1px;
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+box-shadow:
+0 4px 15px rgba(71, 124, 255, .12),
+inset 0 1px 0 rgba(255, 255, 255, .04);
+transition:
+background .2s ease,
+border-color .2s ease,
+transform .2s ease,
+box-shadow .2s ease;
+}
+
+.network-pill i {
+display: inline-block;
+width: 7px;
+height: 7px;
+flex-shrink: 0;
+border-radius: 50%;
+background: #62e6f5;
+box-shadow: 0 0 9px #62e6f5;
+}
+
+#ton-header-label {
+display: block;
+min-width: 0;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+
+.network-pill.wallet-connected {
+border-color: rgba(94, 230, 189, .48);
+background:
+linear-gradient(110deg, rgba(35, 150, 125, .19), rgba(71, 124, 255, .17)),
+#111a2a;
+color: #b9ffe8;
+letter-spacing: .3px;
+font-size: 10px;
+}
+
+.network-pill.wallet-connected i {
+background: #5ee6bd;
+box-shadow: 0 0 9px #5ee6bd;
+}
+
+.network-pill:active {
+transform: scale(.96);
+}
+
+.network-pill:disabled {
+opacity: .65;
+cursor: wait;
+}
+
+.network-pill.wallet-loading {
+opacity: .7;
+}
+
+/* LIVE TAG */
+
+.live-tag {
+font-size: 9px;
 letter-spacing: 1.3px;
 color: #9eabc0;
 border: 1px solid var(--line);
 border-radius: 30px;
-padding: 7px 10px;
+padding: 5px 8px;
 }
 
-.network-pill i,
 .live-tag i {
 display: inline-block;
 width: 6px;
@@ -277,11 +360,6 @@ align-items: center;
 color: #aab8ca;
 font-size: 10px;
 letter-spacing: 1.3px;
-}
-
-.live-tag {
-padding: 5px 8px;
-font-size: 9px;
 }
 
 .balance-value {
@@ -505,86 +583,6 @@ text-align: right;
 overflow-wrap: anywhere;
 }
 
-/* TON WALLET SEPARATE CARD */
-
-#ton-wallet-section {
-position: relative;
-margin-top: 28px;
-padding: 20px 17px;
-border: 1px solid rgba(98, 130, 255, .32);
-border-radius: 17px;
-background:
-radial-gradient(ellipse at 100% 0%, rgba(71, 124, 255, .13), transparent 55%),
-linear-gradient(145deg, #141e31, #101622);
-box-shadow:
-0 10px 28px rgba(0, 0, 0, .2),
-inset 0 1px 0 rgba(255, 255, 255, .025);
-}
-
-#ton-wallet-section::before {
-content: "";
-position: absolute;
-top: 0;
-left: 17px;
-right: 17px;
-height: 2px;
-border-radius: 0 0 5px 5px;
-background: linear-gradient(90deg, var(--blue), var(--cyan), var(--purple));
-}
-
-#ton-wallet-section h3 {
-margin: 2px 0 7px;
-font-size: 17px;
-display: flex;
-align-items: center;
-gap: 8px;
-}
-
-#ton-wallet-section h3::before {
-content: "◈";
-color: var(--cyan);
-font-size: 20px;
-}
-
-#ton-wallet-section > .empty {
-padding: 5px 0 15px;
-font-size: 11px;
-}
-
-#ton-wallet-section .profile-info {
-margin-top: 8px;
-padding: 13px;
-border: 1px solid rgba(98, 130, 255, .16);
-border-radius: 10px;
-background: rgba(8, 13, 23, .55);
-}
-
-#ton-wallet-section #ton-wallet-address {
-margin-top: 10px;
-}
-
-#ton-wallet-section #ton-wallet-address strong {
-color: var(--cyan);
-font-size: 12px;
-}
-
-#ton-wallet-section #ton-wallet-button {
-width: 100%;
-margin-top: 15px;
-min-height: 46px;
-font-size: 12px;
-letter-spacing: .2px;
-}
-
-#ton-wallet-section #ton-wallet-button:not(:disabled) {
-background: linear-gradient(100deg, #347ff5, #795cf5);
-box-shadow: 0 5px 20px rgba(71, 124, 255, .22);
-}
-
-#ton-wallet-section #ton-wallet-button:active {
-transform: scale(.98);
-}
-
 /* NOTICE AND FOOTNOTE */
 
 .notice {
@@ -660,6 +658,33 @@ filter: drop-shadow(0 0 7px rgba(98, 230, 245, .45));
 padding: 0 13px;
 }
 
+.topbar {
+gap: 7px;
+}
+
+.brand {
+gap: 7px;
+font-size: 17px;
+}
+
+.brand img {
+width: 32px;
+height: 32px;
+}
+
+.network-pill {
+min-width: 88px;
+max-width: 145px;
+min-height: 34px;
+padding: 7px 9px;
+font-size: 9px;
+gap: 6px;
+}
+
+.network-pill.wallet-connected {
+font-size: 9px;
+}
+
 .hero {
 padding: 19px 16px;
 }
@@ -685,11 +710,6 @@ font-size: 11px;
 padding: 15px;
 }
 
-#ton-wallet-section {
-margin-top: 24px;
-padding: 18px 14px;
-}
-
 .nav-item {
 font-size: 9px;
 }
@@ -708,4 +728,4 @@ min-height: 165px;
 width: 185px;
 height: 185px;
 }
-  }
+}
