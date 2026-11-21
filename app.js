@@ -119,7 +119,6 @@ function setCheckin(canClaim, reward, message) {
 function activate(view) {
   const allowedViews = [
     "home",
-    "tasks",
     "friends",
     "leaderboard",
     "profile"
@@ -145,6 +144,8 @@ function activate(view) {
     home.hidden = false;
     box.hidden = true;
 
+    renderTasks();
+
     window.scrollTo({
       top: 0,
       behavior: "smooth"
@@ -156,7 +157,6 @@ function activate(view) {
   home.hidden = true;
   box.hidden = false;
 
-  if (view === "tasks") renderTasks();
   if (view === "friends") renderFriends();
   if (view === "leaderboard") renderLeaderboard();
   if (view === "profile") renderProfile();
@@ -185,11 +185,13 @@ xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
 </svg>
 `;
 
-// TASKS PAGE
+// TASKS ON HOME PAGE
 function renderTasks() {
-  const box = $("content-view");
+  const box = $("home-tasks-list");
 
-  box.innerHTML = "<h3>Available Tasks</h3>";
+  if (!box) return;
+
+  box.innerHTML = "";
 
   if (!state.tasks.length) {
     box.insertAdjacentHTML(
