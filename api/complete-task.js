@@ -60,10 +60,12 @@ module.exports=async(req,res)=>{
 
     }
 
-    // X TASK: NO FOLLOW VERIFICATION
+    // X TASK
     else if(task.task_type==="x_follow"){
 
-      if(task.task_url!=="https://x.com/zyroapp_X"){
+      const xUrl=String(task.task_url||"");
+
+      if(!/^https:\/\/x\.com\/zyroapp_X(?:\/status\/\d+)?(?:\?.*)?$/i.test(xUrl)){
         return send(res,400,{
           error:"Invalid X task link."
         });
