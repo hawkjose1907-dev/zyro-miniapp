@@ -794,3 +794,59 @@
         false,
         0,
         "Please launch this app from @zyrominiappbot 
+              );
+
+      activate("home");
+      notice("Please open ZYRO inside Telegram.");
+      return;
+    }
+
+    try {
+      notice("Loading your ZYRO account...");
+
+      const data = await api("/api/me", {
+        startParam
+      });
+
+      if (!data.user) {
+        throw new Error("Unable to load your ZYRO profile.");
+      }
+
+      setUser(data.user);
+
+      state.tasks = Array.isArray(data.tasks)
+        ? data.tasks
+        : [];
+
+      state.referralCount = Number(data.referralCount || 0);
+
+      setCheckin(
+        Boolean(data.canClaimDaily),
+        Number(data.dailyReward || 0)
+      );
+
+      activate("home");
+      notice("");
+
+    } catch (error) {
+      console.error("ZYRO initialization error:", error);
+
+      $("greeting").textContent = "Welcome to ZYRO";
+
+      setCheckin(
+        false,
+        0,
+        "Unable to load your account. Please try again."
+      );
+
+      state.tasks = [];
+
+      activate("home");
+      notice(error.message || "ZYRO loading failed.");
+    }
+  }
+
+  // START APP
+  boot();
+
+})();
