@@ -22,23 +22,22 @@
       width: 0 !important;
       height: 0 !important;
     }
+
+    .home-tasks-list {
+      padding: 0 17px;
+    }
   </style>
 </head>
 
 <body>
 
   <div id="zyro-splash">
-    <img
-      src="/assets/zyro-logo.png"
-      class="splash-logo"
-      alt="ZYRO"
-    >
+    <img src="/assets/zyro-logo.png" class="splash-logo" alt="ZYRO">
     <div class="splash-title">ZYRO</div>
     <div class="splash-subtitle">WELCOME TO ZYRO</div>
     <div class="splash-loader"></div>
   </div>
 
-  <!-- SPLASH SCREEN SAFETY TIMER -->
   <script>
     window.setTimeout(function () {
       const splash = document.getElementById("zyro-splash");
@@ -124,6 +123,18 @@
           </div>
         </section>
 
+        <!-- TASKS MOVED TO HOME PAGE -->
+        <section class="section">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">TASKS</span>
+              <h2>Available Tasks</h2>
+            </div>
+          </div>
+
+          <div id="home-tasks-list" class="home-tasks-list panel"></div>
+        </section>
+
       </div>
 
       <section
@@ -141,11 +152,6 @@
       <button class="nav-item active" data-view="home">
         <span>⌂</span>
         Home
-      </button>
-
-      <button class="nav-item" data-view="tasks">
-        <span>✦</span>
-        Tasks
       </button>
 
       <button class="nav-item" data-view="friends">
@@ -167,7 +173,7 @@
 
   </div>
 
-  <script src="/app.js?v=20261121-3"></script>
+  <script src="/app.js?v=20261121-4"></script>
 
 </body>
 </html>
