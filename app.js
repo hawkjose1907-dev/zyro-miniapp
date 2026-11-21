@@ -22,11 +22,7 @@ const state = {
   referralCount: 0,
   tonWallet: null,
   tonUI: null,
-  tonInitStarted: false,
-  nextClaimAt: null,
-  serverTimeOffset: 0,
-  dailyReward: 50,
-  countdownTimer: null
+  tonInitStarted: false
 };
 
 const initData = tg?.initData || "";
@@ -62,9 +58,7 @@ async function api(path, body = {}) {
   }));
 
   if (!res.ok) {
-    const err = new Error(data.error || "Request failed");
-    err.data = data;
-    throw err;
+    throw new Error(data.error || "Request failed");
   }
 
   return data;
@@ -106,80 +100,19 @@ function setUser(user) {
   $("greeting").textContent = `Welcome, ${name}`;
 }
 
-// DAILY REWARD COUNTDOWN
-function setCheckin(canClaim, reward, message, nextClaimAt, serverNow) {
-  const button = $("checkin-btn");
-  const copy = $("checkin-copy");
+// DAILY CHECK-IN
+function setCheckin(canClaim, reward, message) {
+  $("checkin-btn").disabled = !canClaim;
 
-  if (!button || !copy) return;
+  $("checkin-btn").textContent = canClaim
+    ? `Claim ${fmt(reward)} ZYRO`
+    : "Claimed";
 
-  state.dailyReward = Number(reward || state.dailyReward || 50);
-
-  if (serverNow) {
-    state.serverTimeOffset = Number(serverNow) - Date.now();
-  }
-
-  if (state.countdownTimer) {
-    clearInterval(state.countdownTimer);
-    state.countdownTimer = null;
-  }
-
-  if (canClaim) {
-    state.nextClaimAt = null;
-    button.disabled = false;
-    button.textContent = `Claim ${fmt(state.dailyReward)} ZYRO`;
-    copy.textContent = message || "Your daily reward is ready.";
-    return;
-  }
-
-  state.nextClaimAt = nextClaimAt
-    ? new Date(nextClaimAt).getTime()
-    : null;
-
-  if (!state.nextClaimAt || !Number.isFinite(state.nextClaimAt)) {
-    button.disabled = true;
-    button.textContent = "Claimed";
-    copy.textContent = message || "Your next reward will be available in 24 hours.";
-    return;
-  }
-
-  button.disabled = true;
-
-  function updateCountdown() {
-    const now = Date.now() + state.serverTimeOffset;
-    const remaining = state.nextClaimAt - now;
-
-    if (remaining <= 0) {
-      clearInterval(state.countdownTimer);
-      state.countdownTimer = null;
-
-      state.nextClaimAt = null;
-
-      button.disabled = false;
-      button.textContent = `Claim ${fmt(state.dailyReward)} ZYRO`;
-      copy.textContent = "Your daily reward is ready.";
-
-      return;
-    }
-
-    const totalSeconds = Math.floor(remaining / 1000);
-
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    const countdown =
-      String(hours).padStart(2, "0") + ":" +
-      String(minutes).padStart(2, "0") + ":" +
-      String(seconds).padStart(2, "0");
-
-    button.textContent = countdown;
-    copy.textContent = "Your next reward will be available in " + countdown;
-  }
-
-  updateCountdown();
-
-  state.countdownTimer = setInterval(updateCountdown, 1000);
+  $("checkin-copy").textContent =
+    message ||
+    (canClaim
+      ? "Your daily reward is ready."
+      : "Your next daily reward will be available tomorrow.");
 }
 
 // PAGE NAVIGATION
@@ -806,13 +739,7 @@ $("ton-header-button")?.addEventListener("click", async () => {
 
 // DAILY REWARD BUTTON
 $("checkin-btn").addEventListener("click", async () => {
-  const button = $("checkin-btn");
-
-  if (button.disabled) return;
-
-  button.disabled = true;
-  button.textContent = "Claiming…";
-
+  $("checkin-btn").disabled = true;
   notice("Processing your daily reward…");
 
   try {
@@ -826,10 +753,8 @@ $("checkin-btn").addEventListener("click", async () => {
 
     setCheckin(
       false,
-      data.reward,
-      "Your next reward is being prepared.",
-      data.nextClaimAt,
-      Date.now()
+      0,
+      "Your daily reward has been added."
     );
 
     let message =
@@ -842,8 +767,71 @@ $("checkin-btn").addEventListener("click", async () => {
     notice(message);
 
   } catch (error) {
-    if (error.data?.nextClaimAt) {
-      setCheckin(
-        false,
-        state.dailyReward,
-        "Your next reward is n
+    notice(error.message);
+    $("checkin-btn").disabled = false;
+  }
+});
+
+// INITIALIZE APP
+async function boot() {
+  updateHeaderWalletButton();
+
+  // Restore an existing TON wallet connection
+  initializeTonConnect();
+
+  if (!initData) {
+    $("greeting").textContent =
+      "Open ZYRO in Telegram";
+
+    setCheckin(
+      false,
+      0,
+      "Please launch this app from @zyrominiappbot in Telegram."
+    );
+
+    notice("Telegram authentication is required.");
+    return;
+  }
+
+  try {
+    const data = await api("/api/me", {
+      startParam
+    });
+
+    setUser(data.user);
+
+    state.tasks = data.tasks || [];
+    state.referralCount = data.referralCount || 0;
+
+    setCheckin(
+      data.canClaimDaily,
+      data.dailyReward,
+      data.canClaimDaily
+        ? "Your daily reward is ready."
+        : "You have already checked in today."
+    );
+
+    activate("home");
+
+  } catch (error) {
+    notice(error.message);
+
+    $("greeting").textContent =
+      "Unable to load your account";
+
+    setCheckin(
+      false,
+      0,
+      "Please try again later."
+    );
+  }
+}
+
+// START APP AND HIDE SPLASH
+boot();
+
+setTimeout(() => {
+  $("zyro-splash")?.classList.add("hide");
+}, 2000);
+
+})();
